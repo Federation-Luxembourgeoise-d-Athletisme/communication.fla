@@ -32,6 +32,9 @@ L'app tourne sur http://localhost:3000.
    adapter l'objet, par exemple « Choisissez votre mot de passe – Communication FLA ». Cet e-mail
    sert aussi d'invitation.
 3. **Authentication** > Paramètres > Domaines autorisés : ajouter le domaine Netlify et `communication.fla.lu`.
+   Puis, dans **Modèles**, ouvrir un modèle > « Personnaliser l'URL d'action » et indiquer
+   `https://<site>/auth/action` : la page de l'app ne consomme le lien qu'à la validation du formulaire,
+   ce qui évite les liens « expirés » à cause des antivirus de messagerie (Microsoft 365).
 4. **Firestore Database** : créer la base en mode production, région Europe.
 5. **Paramètres du projet** > Comptes de service : générer une clé privée et reporter
    `client_email` et `private_key` dans `.env.local` (et dans Netlify). Ne jamais versionner ce fichier.

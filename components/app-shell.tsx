@@ -14,7 +14,7 @@ const NAV: NavItem[] = [
   { href: "/evenements", label: "Événements", ready: false },
   { href: "/galerie", label: "Galerie photos", ready: false },
   { href: "/presence", label: "Présence photographes", ready: false },
-  { href: "/rubriques", label: "Rubriques récurrentes", ready: false },
+  { href: "/rubriques", label: "Rubriques récurrentes", ready: true },
   { href: "/partenaires", label: "Partenaires", ready: false, roles: ["manager"] },
   { href: "/equipe", label: "Équipe", ready: true },
 ];

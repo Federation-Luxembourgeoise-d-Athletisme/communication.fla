@@ -242,7 +242,7 @@ match /socialAccounts/{id} { allow read, write: if false; }         // serveur u
 1. ✅ Projet Firebase `communication-fla-lu`, dépôt GitHub `communication.fla`, site Netlify, base Next.js (1er octobre 2026).
 2. ✅ Connexion (e-mail et mot de passe), invitations, rôles, annuaire : page Équipe, routes `/api/users`, règles Firestore, testés sur émulateurs.
    Aucune notification : les tâches et les échéances se suivent dans l'outil (vue « Mes tâches », tableau de bord partenaires).
-3. Rubriques récurrentes (reprise du calendrier type 2026), calendrier mois et liste, glisser-déposer.
+3. ✅ Rubriques récurrentes (import du calendrier type 2026), calendrier mois et liste, publications ponctuelles, glisser-déposer « cette date / toute la récurrence », annulation d’une date. Page `/auth/action` pour choisir son mot de passe, résistante aux antivirus de messagerie.
 4. Publications, événements, tâches, vue « Mes tâches ».
 5. Partenaires : formulaires de saisie (partenaire, contrat, contreparties), lien avec les publications, tableau de bord. Les 10 contrats existants sont saisis à la main.
 6. Galerie Piwigo, avec photos jointes aux publications.

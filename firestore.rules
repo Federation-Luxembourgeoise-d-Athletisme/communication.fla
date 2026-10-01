@@ -35,7 +35,46 @@ service cloud.firestore {
       allow create, delete: if false;
     }
 
-    // Les collections métier (rubriques, publications, events, tasks, links, partners…)
-    // seront ajoutées ici au fil des étapes de la V1, avec isStaff() / isManager().
+    function isDate(value) {
+      return value is string && value.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+    }
+
+    function validRubrique() {
+      let d = request.resource.data;
+      return d.titre is string && d.titre.size() > 0 && d.titre.size() <= 200
+        && d.type in ["post", "story", "video", "cp", "newsletter", "article"]
+        && d.canaux is list
+        && d.rule is map && d.rule.kind in ["weekly", "monthly", "last"] && d.rule.dow is int
+        && d.history is list
+        && d.active is bool;
+    }
+
+    function validPublication() {
+      let d = request.resource.data;
+      return d.titre is string && d.titre.size() > 0 && d.titre.size() <= 200
+        && isDate(d.date)
+        && d.type in ["post", "story", "video", "cp", "newsletter", "article"]
+        && d.statut in ["todo", "doing", "review", "scheduled", "done"]
+        && d.canaux is list && d.assigneUids is list
+        && d.notes is string && d.notes.size() <= 5000
+        && d.annulee is bool
+        && (d.occurrenceDate == null || isDate(d.occurrenceDate));
+    }
+
+    // Rubriques récurrentes : lues par toute l'équipe, gérées par les responsables.
+    match /rubriques/{id} {
+      allow read: if isStaff();
+      allow create, update: if isManager() && validRubrique();
+      allow delete: if isManager();
+    }
+
+    // Publications ponctuelles et occurrences de rubriques personnalisées (id r_{rubrique}_{date}).
+    match /publications/{id} {
+      allow read: if isStaff();
+      allow create, update: if isStaff() && validPublication();
+      allow delete: if isStaff();
+    }
+
+    // Collections à venir (events, tasks, links, partners…) : ajoutées au fil des étapes de la V1.
   }
 }
