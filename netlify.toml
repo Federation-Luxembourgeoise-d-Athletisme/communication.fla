@@ -1,7 +1,11 @@
-# Site Netlify : communication.fla.lu (Next.js détecté automatiquement par Netlify).
+# Site Netlify : communication.fla.lu
 [build]
   command = "npm run build"
   publish = ".next"
 
 [build.environment]
   NODE_VERSION = "22"
+
+# Adaptateur Next.js de Netlify (routes API, pages dynamiques, redirections).
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
