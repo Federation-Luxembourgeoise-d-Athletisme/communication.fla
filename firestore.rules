@@ -1,0 +1,41 @@
+rules_version = '2';
+
+// Règles du projet communication-fla-lu, indépendant de MyFLA.
+// Tout ce qui n'est pas explicitement autorisé ici est refusé.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function myProfilePath() {
+      return /databases/$(database)/documents/users/$(request.auth.uid);
+    }
+
+    function isActive() {
+      return signedIn() && exists(myProfilePath()) && get(myProfilePath()).data.active == true;
+    }
+
+    function isManager() {
+      return isActive() && get(myProfilePath()).data.role == "manager";
+    }
+
+    function isStaff() {
+      return isActive() && get(myProfilePath()).data.role in ["manager", "team"];
+    }
+
+    // Rôle, accès (active) et e-mail ne sont modifiés que par le serveur (routes /api/users).
+    function onlyProfileFields() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(["firstName", "lastName", "avatarUrl"]);
+    }
+
+    match /users/{uid} {
+      allow read: if isActive();
+      allow update: if ((request.auth.uid == uid && isActive()) || isManager()) && onlyProfileFields();
+      allow create, delete: if false;
+    }
+
+    // Les collections métier (rubriques, publications, events, tasks, links, partners…)
+    // seront ajoutées ici au fil des étapes de la V1, avec isStaff() / isManager().
+  }
+}

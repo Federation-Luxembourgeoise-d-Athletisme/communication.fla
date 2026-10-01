@@ -1,0 +1,1272 @@
+<title>Communication FLA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout : barre latérale fixe + calendrier en grille 7 colonnes, panneau de détail qui glisse depuis la droite */
+:root{
+  --bg:#F3F6F9; --surface:#FFFFFF; --surface-2:#EAEFF4; --ink:#14202D; --muted:#596A7B; --line:#D6DEE7;
+  --accent:#0A76B5; --accent-ink:#FFFFFF; --accent-soft:#DCEDF7; --red:#C42E3A;
+  --t-post:#2E63C6; --t-story:#B53984; --t-video:#6C47C4; --t-cp:#21804E; --t-newsletter:#AD690B; --t-article:#4A6378;
+  --s-todo:#7A8898; --s-doing:#B9740C; --s-review:#B53984; --s-scheduled:#0A76B5; --s-done:#21804E;
+  --shadow:0 12px 40px rgba(20,32,45,.18);
+  --f-display:'Barlow Condensed','Arial Narrow',sans-serif;
+  --f-body:'Barlow',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0D141C; --surface:#141E29; --surface-2:#1B2734; --ink:#E4ECF3; --muted:#93A3B4; --line:#283646;
+  --accent:#43A8E3; --accent-ink:#06121B; --accent-soft:#163246; --red:#EE6971;
+  --t-post:#6D9BF0; --t-story:#E57AB9; --t-video:#A88BF0; --t-cp:#55C08A; --t-newsletter:#E2A44C; --t-article:#93AABF;
+  --s-todo:#8797A8; --s-doing:#E2A44C; --s-review:#E57AB9; --s-scheduled:#43A8E3; --s-done:#55C08A;
+  --shadow:0 12px 40px rgba(0,0,0,.5); color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0D141C; --surface:#141E29; --surface-2:#1B2734; --ink:#E4ECF3; --muted:#93A3B4; --line:#283646;
+  --accent:#43A8E3; --accent-ink:#06121B; --accent-soft:#163246; --red:#EE6971;
+  --t-post:#6D9BF0; --t-story:#E57AB9; --t-video:#A88BF0; --t-cp:#55C08A; --t-newsletter:#E2A44C; --t-article:#93AABF;
+  --s-todo:#8797A8; --s-doing:#E2A44C; --s-review:#E57AB9; --s-scheduled:#43A8E3; --s-done:#55C08A;
+  --shadow:0 12px 40px rgba(0,0,0,.5); color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45}
+*{box-sizing:border-box}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+
+.app{display:grid;grid-template-columns:250px minmax(0,1fr);min-height:100%}
+.side{background:var(--surface);border-right:1px solid var(--line);padding:20px 16px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{display:flex;flex-direction:column;gap:6px}
+.brand h1{font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1;margin:0;letter-spacing:.01em;text-transform:uppercase}
+.brand h1 span{color:var(--accent)}
+.lanes{height:6px;background:repeating-linear-gradient(90deg,var(--red) 0 18px,transparent 18px 22px);opacity:.85;border-radius:1px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);background:var(--surface-2);padding:3px 8px;border-radius:99px;width:fit-content}
+.label{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{display:flex;align-items:center;justify-content:space-between;gap:8px;background:none;border:0;padding:9px 10px;border-radius:8px;text-align:left;font-weight:500}
+.nav button:hover{background:var(--surface-2)}
+.nav button.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nav .count{font-size:12px;background:var(--accent);color:var(--accent-ink);border-radius:99px;padding:0 7px;font-weight:600}
+.nav .v2{font-size:11px;border:1px solid var(--line);color:var(--muted);border-radius:99px;padding:0 6px}
+.field{display:flex;flex-direction:column;gap:6px}
+select,input[type=text],input[type=date],textarea{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-width:0}
+textarea{resize:vertical;min-height:80px}
+.links{display:flex;flex-direction:column;gap:4px;margin:0;padding:0;list-style:none}
+.links li{display:flex;justify-content:space-between;gap:8px;font-size:14px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.links li span:last-child{color:var(--muted)}
+.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--muted)}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;text-underline-offset:3px;font-size:13px;width:fit-content}
+
+.main{padding-block:20px 40px;padding-inline:24px;min-width:0;display:flex;flex-direction:column;gap:16px}
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.top h2{font-family:var(--f-display);font-weight:600;font-size:32px;line-height:1.05;margin:0;text-transform:capitalize;text-wrap:balance}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.btn{border:1px solid var(--line);background:var(--surface);padding:7px 12px;border-radius:8px;font-weight:500;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.danger{color:var(--red);border-color:color-mix(in srgb,var(--red) 40%,var(--line))}
+.btn.ghost{border-color:transparent;background:none}
+.btn.icon{padding:7px 10px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 12px;font-weight:500}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button.on{background:var(--ink);color:var(--bg)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.filters select{padding:6px 8px;font-size:14px}
+.check{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--muted)}
+.notice{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--muted)}
+.notice strong{color:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:10px;height:10px;border-radius:3px;background:var(--tc)}
+
+/* Grille du mois */
+.month{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--line);display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px}
+.dow{background:var(--surface-2);padding:8px 10px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.cell{background:var(--surface);min-height:118px;padding:6px;display:flex;flex-direction:column;gap:4px;min-width:0;cursor:pointer}
+.cell.out{background:var(--bg)}
+.cell.out .dnum{opacity:.45}
+.cell.we{background:color-mix(in srgb,var(--surface-2) 45%,var(--surface))}
+.cell:hover .add{opacity:1}
+.cell.over{background:var(--accent-soft);outline:2px dashed var(--accent);outline-offset:-3px}
+.chip[draggable=true]{cursor:grab}
+.cellhead{display:flex;justify-content:space-between;align-items:center}
+.dnum{font-family:var(--f-display);font-weight:600;font-size:18px;line-height:1;padding:3px 5px;border-radius:6px}
+.cell.today .dnum{background:var(--red);color:#fff}
+.add{opacity:0;font-size:13px;color:var(--muted);border:0;background:none;padding:0 4px}
+.evflag{font-size:11.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase;letter-spacing:.03em}
+.chip{--tc:var(--t-post);display:flex;align-items:center;gap:5px;width:100%;text-align:left;border:0;border-left:3px solid var(--tc);background:color-mix(in srgb,var(--tc) 11%,var(--surface));border-radius:4px;padding:3px 5px;font-size:12.5px;line-height:1.25;min-width:0}
+.chip:hover{background:color-mix(in srgb,var(--tc) 20%,var(--surface))}
+.chip.past{opacity:.6}
+.chip .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip .rec{color:var(--muted);font-size:12px}
+.st{width:9px;height:9px;border-radius:50%;flex:none;border:1.5px solid var(--sc);background:var(--sc)}
+.st.todo{--sc:var(--s-todo);background:transparent}
+.st.doing{--sc:var(--s-doing);background:conic-gradient(var(--sc) 0 50%,transparent 50%)}
+.st.review{--sc:var(--s-review)}
+.st.scheduled{--sc:var(--s-scheduled)}
+.st.done{--sc:var(--s-done)}
+.st.late{--sc:var(--red)}
+
+/* Agenda */
+.agenda{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+.aday{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;padding:12px 14px;border-top:1px solid var(--line)}
+.aday:first-child{border-top:0}
+.aday.today{background:color-mix(in srgb,var(--red) 6%,var(--surface))}
+.adate{display:flex;flex-direction:column;align-items:flex-start}
+.adate b{font-family:var(--f-display);font-size:30px;line-height:1;font-weight:600}
+.adate span{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.aday.today .adate b{color:var(--red)}
+.alist{display:flex;flex-direction:column;gap:6px;min-width:0}
+.aitem{--tc:var(--t-post);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;text-align:left;border:1px solid var(--line);border-left:3px solid var(--tc);background:var(--surface);border-radius:8px;padding:8px 10px}
+.aitem:hover{border-color:var(--muted);border-left-color:var(--tc)}
+.aitem .t{font-weight:600;min-width:0}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;color:var(--muted)}
+.ctag{font-size:10.5px;font-weight:600;letter-spacing:.05em;border:1px solid var(--line);border-radius:4px;padding:0 5px;color:var(--muted)}
+.ttag{--tc:var(--t-post);font-size:12px;font-weight:600;color:var(--tc);display:inline-flex;align-items:center;gap:5px}
+.ttag::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--tc)}
+.spill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;color:var(--ink);white-space:nowrap}
+.av{width:24px;height:24px;border-radius:50%;display:inline-grid;place-items:center;font-size:11px;font-weight:600;color:#fff;flex:none;border:2px solid var(--surface)}
+.avs{display:inline-flex}
+.avs .av+.av{margin-left:-6px}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+
+/* Panneau de détail */
+.backdrop{position:fixed;inset:0;background:rgba(10,18,26,.35);z-index:20}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--surface);border-left:1px solid var(--line);box-shadow:var(--shadow);z-index:21;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+.dhead{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}
+.dbody{padding:18px;display:flex;flex-direction:column;gap:18px;overflow:auto;flex:1}
+.dbody h3{font-family:var(--f-display);font-size:28px;line-height:1.05;margin:0;font-weight:600;text-wrap:balance}
+.titleinput{font-family:var(--f-display);font-size:26px;font-weight:600;border:1px solid transparent;border-radius:8px;padding:2px 6px;margin-left:-7px;background:transparent;width:100%}
+.titleinput:hover,.titleinput:focus{border-color:var(--line);background:var(--surface)}
+.info{background:var(--surface-2);border-radius:10px;padding:10px 12px;font-size:13.5px;color:var(--muted)}
+.info b{color:var(--ink)}
+.toggles{display:flex;flex-wrap:wrap;gap:6px}
+.tog{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:5px 11px;font-size:13.5px;display:inline-flex;align-items:center;gap:6px}
+.tog.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.tog:disabled{cursor:default;opacity:.7}
+.stats{border:1px dashed var(--line);border-radius:10px;padding:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;position:relative}
+.stats div{display:flex;flex-direction:column}
+.stats b{font-family:var(--f-display);font-size:24px;font-weight:600;color:var(--muted)}
+.stats span{font-size:12px;color:var(--muted)}
+.dfoot{padding:14px 18px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+.mini{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.mini li{display:flex;align-items:center;gap:8px;font-size:14px}
+
+/* Modale */
+.modal{position:fixed;inset:0;display:grid;place-items:center;z-index:30;padding:16px}
+.dialog{position:relative;background:var(--surface);border-radius:14px;box-shadow:var(--shadow);width:min(520px,100%);max-height:calc(100% - 32px);overflow:auto;padding:22px;display:flex;flex-direction:column;gap:14px;z-index:1}
+.dialog h3{margin:0;font-family:var(--f-display);font-size:26px;font-weight:600}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* Tâches */
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
+.col{background:var(--surface-2);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.colhead{display:flex;justify-content:space-between;align-items:center;padding:2px 4px 4px}
+.colhead h4{margin:0;font-family:var(--f-display);font-size:20px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.card .t{font-weight:600}
+.cardfoot{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.due{font-size:12.5px;color:var(--muted)}
+.due.late{color:var(--red);font-weight:600}
+.moves{display:flex;gap:2px}
+.moves button{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:1px 8px;font-size:13px}
+.section-title{font-family:var(--f-display);font-size:22px;font-weight:600;margin:6px 0 0;text-transform:uppercase;letter-spacing:.03em}
+
+/* Événements */
+.events{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,360px),1fr));gap:14px}
+.evcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.evcard h4{margin:0;font-family:var(--f-display);font-size:24px;font-weight:600;line-height:1.1}
+.bar{height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--s-done)}
+.tl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.tl li{display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
+.tl li button{background:none;border:0;padding:0;text-align:left;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tl li button:hover{color:var(--accent)}
+
+/* Rubriques */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:720px;font-size:14px}
+th,td{padding:10px 12px;text-align:left;border-top:1px solid var(--line);vertical-align:middle}
+th{border-top:0;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--surface-2)}
+td.rule{font-weight:500}
+.switch{width:38px;height:22px;border-radius:99px;border:0;background:var(--line);position:relative;padding:0}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--surface);transition:left .15s}
+.switch.on{background:var(--s-done)}
+.switch.on::after{left:19px}
+.switch:disabled{opacity:.6;cursor:not-allowed}
+
+/* Statistiques */
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:14px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.kpi h4{margin:0;font-family:var(--f-display);font-size:22px;font-weight:600}
+.kpi dl{display:grid;grid-template-columns:1fr auto;gap:6px 12px;margin:0;font-size:14px}
+.kpi dt{color:var(--muted)}
+.kpi dd{margin:0;font-weight:600;text-align:right}
+
+/* Partenaires */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),1fr));gap:12px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;text-align:left}
+.tile b{font-family:var(--f-display);font-size:34px;line-height:1;font-weight:600}
+.tile span{font-size:13px;color:var(--muted)}
+.tile.late b{color:var(--red)} .tile.risk b{color:var(--s-doing)}
+.obst{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px;white-space:nowrap;color:var(--oc);background:color-mix(in srgb,var(--oc) 13%,transparent)}
+.obst.late{--oc:var(--red)} .obst.risk{--oc:var(--s-doing)} .obst.ontrack{--oc:var(--accent)} .obst.done{--oc:var(--s-done)}
+.pcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:14px}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;text-align:left;min-width:0}
+.pcard:hover{border-color:var(--muted)}
+.pcard h4{margin:0;font-family:var(--f-display);font-size:24px;font-weight:600;line-height:1.1}
+.plogo{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:18px;color:#fff;flex:none}
+.todo-list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+.todo-list button{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:10px 14px}
+.todo-list button:first-child{border-top:0}
+.todo-list button:hover{background:var(--surface-2)}
+.obs{display:flex;flex-direction:column;gap:8px}
+.ob{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.obhead{display:grid;grid-template-columns:minmax(0,1fr) 150px auto;gap:6px 14px;align-items:center;width:100%;text-align:left;background:none;border:0;padding:12px 14px}
+.obhead:hover{background:var(--surface-2)}
+.obhead .t{font-weight:600}
+.obprog{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted)}
+.obprog .bar{position:relative}
+.obprog .bar em{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink);opacity:.55}
+.obbody{border-top:1px solid var(--line);padding:12px 14px;display:flex;flex-direction:column;gap:10px;background:color-mix(in srgb,var(--surface-2) 40%,var(--surface))}
+.evrow{display:grid;grid-template-columns:auto 62px minmax(0,1fr) auto;gap:10px;align-items:center;font-size:14px}
+.evrow .miss{color:var(--red);font-weight:600;font-size:12.5px}
+.steps{display:flex;flex-wrap:wrap;gap:6px}
+.steps button{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:5px 10px;font-size:13px}
+.steps button.on{background:var(--s-done);border-color:var(--s-done);color:#fff;font-weight:600}
+.qty{display:flex;align-items:center;gap:10px}
+.qty b{font-family:var(--f-display);font-size:26px}
+.alert{border:1px solid color-mix(in srgb,var(--s-doing) 45%,var(--line));background:color-mix(in srgb,var(--s-doing) 9%,var(--surface));border-radius:10px;padding:10px 14px;font-size:14px}
+.catttl{font-family:var(--f-display);font-size:19px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:8px 0 0}
+.checks{display:flex;flex-direction:column;gap:6px;font-size:14px}
+.bilan{display:flex;flex-direction:column;gap:12px}
+.bilan table{min-width:0}
+@media (max-width:640px){ .obhead{grid-template-columns:minmax(0,1fr) auto} .obhead .obprog{grid-column:1 / -1} }
+
+/* Galerie */
+.albums{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:14px}
+.album{display:flex;flex-direction:column;gap:4px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 8px 12px;min-width:0}
+.album:hover{border-color:var(--muted)}
+.album .cover{aspect-ratio:3/2;border-radius:8px;max-width:100%}
+.album .t{font-weight:600;padding:4px 4px 0}
+.album .meta{padding:0 4px}
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,150px),1fr));gap:8px}
+.photo{position:relative;aspect-ratio:3/2;border-radius:8px;border:3px solid transparent;padding:0;max-width:100%}
+.photo.on{border-color:var(--accent)}
+.photo .credit{position:absolute;left:6px;bottom:4px;font-size:11px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.photo .tick{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:13px;font-weight:700}
+.thumbs{display:flex;flex-wrap:wrap;gap:6px}
+.thumbs span{width:64px;aspect-ratio:3/2;border-radius:6px}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:99px;font-size:14px;font-weight:500;z-index:40}
+
+@media (max-width:860px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .side{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);gap:14px}
+  .nav{flex-direction:row;overflow-x:auto}
+  .nav button{white-space:nowrap}
+  .side .links-block,.side-foot{display:none}
+  .main{padding-inline:16px}
+  .board{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:520px){ .grid2{grid-template-columns:1fr} .top h2{font-size:26px} }
+@media (prefers-reduced-motion:reduce){ *{transition:none!important} }
+</style>
+
+<div id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+<script>
+const { useState, useEffect, useMemo } = React;
+const html = htm.bind(React.createElement);
+
+/* ---------- Dates ---------- */
+const TODAY = '2026-10-01';
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+const MOIS_C = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+const JOURS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+const JOURS_C = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+const jourNum = d => (d.getDate() === 1 ? '1er' : d.getDate());
+const fmtLong = s => { const d = parse(s); return `${JOURS[d.getDay()]} ${jourNum(d)} ${MOIS[d.getMonth()]}`; };
+const fmtShort = s => { const d = parse(s); return `${jourNum(d)} ${MOIS_C[d.getMonth()]}`; };
+
+/* ---------- Référentiels ---------- */
+const PEOPLE = [
+  { id: 'margot', nom: 'Margot L.', role: 'admin', titre: 'Responsable communication', hue: 205 },
+  { id: 'julie', nom: 'Julie', role: 'membre', titre: 'Réseaux sociaux', hue: 330 },
+  { id: 'ben', nom: 'Ben', role: 'membre', titre: 'Contenus & vidéo', hue: 150 },
+  { id: 'david', nom: 'David', role: 'admin', titre: 'Directeur', hue: 260 },
+];
+const person = id => PEOPLE.find(p => p.id === id);
+// Rôles propres à Communication : manager (responsable com) et team (équipe communication).
+const ROLE = { admin: 'Responsable com', membre: 'Équipe communication', externe: 'Extérieur' }; // outil interne : pas de compte extérieur
+
+/* Présence des photographes : lecture seule, données gérées dans MyFLA (photo_coverages). */
+const PRESENCE = {
+  photographes: ['Paul', 'Sarah', 'Marc', 'Inès'],
+  competitions: [
+    { nom: "Cross d'ouverture de saison", date: '2026-10-18', lieu: 'Lieu à confirmer', st: ['confirmed', 'tentative', 'declined', 'invited'] },
+    { nom: 'Formation juges – niveau C', date: '2026-10-24', lieu: 'Siège de la fédération', st: ['confirmed', 'declined', 'invited', 'invited'] },
+    { nom: 'Cross des clubs', date: '2026-11-08', lieu: 'Lieu à confirmer', st: ['tentative', 'confirmed', 'confirmed', 'declined'] },
+    { nom: 'Gala de fin de saison', date: '2026-11-28', lieu: 'À confirmer', st: ['invited', 'invited', 'tentative', 'invited'] },
+    { nom: 'Championnats nationaux de cross', date: '2026-12-06', lieu: 'Lieu à confirmer', st: ['confirmed', 'confirmed', 'tentative', 'invited'] },
+  ],
+};
+const PST = { confirmed: ['Disponible', 'done'], tentative: ['Peut-être', 'doing'], declined: ['Indisponible', 'late'], invited: ['À confirmer', 'todo'] };
+const TYPES = {
+  post: { label: 'Post', v: 'var(--t-post)' },
+  story: { label: 'Story', v: 'var(--t-story)' },
+  video: { label: 'Vidéo / Reel', v: 'var(--t-video)' },
+  cp: { label: 'Communiqué de presse', v: 'var(--t-cp)' },
+  newsletter: { label: 'Newsletter', v: 'var(--t-newsletter)' },
+  article: { label: 'Article site', v: 'var(--t-article)' },
+};
+const CANAUX = {
+  fb: { label: 'Facebook', s: 'FB' }, ig: { label: 'Instagram', s: 'IG' }, li: { label: 'LinkedIn', s: 'IN' },
+  web: { label: 'Site web', s: 'WEB' }, presse: { label: 'Presse', s: 'PRESSE' }, email: { label: 'E-mail', s: 'MAIL' },
+};
+const STATUTS = [['todo','À faire'],['doing','En cours'],['review','À valider'],['scheduled','Programmé'],['done','Publié']];
+const ST = Object.fromEntries(STATUTS);
+const TSTATUTS = [['todo','À faire'],['doing','En cours'],['done','Fait']];
+
+/* ---------- Récurrence ---------- */
+const ORD = ['', '1er', '2e', '3e', '4e', '5e'];
+function occurs(rule, d) {
+  if (d.getDay() !== rule.dow) return false;
+  if (rule.kind === 'weekly') return true;
+  if (rule.kind === 'monthly') return rule.nth.includes(Math.ceil(d.getDate() / 7));
+  if (rule.kind === 'last') return addDays(d, 7).getMonth() !== d.getMonth();
+  return false;
+}
+// Une rubrique déplacée « à partir d'une date » garde son ancienne règle pour le passé.
+function ruleAt(r, ds) {
+  const h = (r.history || []).find(x => ds < x.until);
+  return h ? h.rule : r.rule;
+}
+function movedRule(rule, from, to) {
+  const n0 = Math.ceil(from.getDate() / 7), n1 = Math.ceil(to.getDate() / 7);
+  if (rule.kind === 'weekly') return { ...rule, dow: to.getDay() };
+  if (rule.kind === 'monthly') return { ...rule, dow: to.getDay(), nth: rule.nth.map(n => (n === n0 ? n1 : n)) };
+  return { ...rule, dow: to.getDay() };
+}
+function ruleLabel(rule) {
+  if (rule.kind === 'weekly') return `Chaque ${JOURS[rule.dow]}`;
+  if (rule.kind === 'monthly') return `${rule.nth.map(n => ORD[n]).join(' et ')} ${JOURS[rule.dow]} du mois`;
+  return `Dernier ${JOURS[rule.dow]} du mois`;
+}
+
+/* ---------- Données d'exemple (fictives) ---------- */
+const SEED = {
+  rubriques: [
+    { id: 'resultats', titre: 'Les résultats du week-end', type: 'post', canaux: ['fb','ig'], resp: 'julie', rule: { kind: 'weekly', dow: 1 }, active: true },
+    { id: 'photos', titre: 'Post photos FLA', type: 'post', canaux: ['fb','ig'], resp: 'ben', rule: { kind: 'weekly', dow: 3 }, active: true },
+    { id: 'barometre', titre: "Le baromètre de l'athlétisme", type: 'story', canaux: ['ig','fb'], resp: 'julie', rule: { kind: 'weekly', dow: 4 }, active: true },
+    { id: 'newsletter', titre: 'La newsletter des licenciés', type: 'newsletter', canaux: ['email'], resp: 'margot', rule: { kind: 'monthly', dow: 4, nth: [3] }, active: true },
+    { id: 'calmois', titre: 'Le calendrier du mois prochain', type: 'post', canaux: ['fb','ig','li'], resp: 'margot', rule: { kind: 'last', dow: 4 }, active: true },
+    { id: 'formations', titre: 'Le calendrier des formations', type: 'post', canaux: ['fb','ig','li'], resp: 'ben', rule: { kind: 'monthly', dow: 5, nth: [1] }, active: true },
+    { id: 'memories', titre: 'Memories – Point histoire', type: 'post', canaux: ['fb','ig'], resp: 'julie', rule: { kind: 'monthly', dow: 5, nth: [2, 5] }, active: true },
+    { id: 'a360', titre: 'Athlète 360°', type: 'video', canaux: ['ig','fb'], resp: 'ben', rule: { kind: 'monthly', dow: 5, nth: [3] }, active: true },
+    { id: 'tips', titre: "Les tips de l'athlétisme", type: 'video', canaux: ['ig'], resp: 'julie', rule: { kind: 'monthly', dow: 5, nth: [4] }, active: true },
+  ],
+  events: [
+    { id: 'cross', titre: "Cross d'ouverture de saison", date: '2026-10-18', lieu: 'Lieu à confirmer' },
+    { id: 'juges', titre: 'Formation juges – niveau C', date: '2026-10-24', lieu: 'Siège de la fédération' },
+    { id: 'selection', titre: "Sélection – Championnats d'Europe de cross", date: '2026-10-28', lieu: 'Annonce officielle' },
+  ],
+  pubs: [
+    { id: 'p0', titre: 'Bilan de la saison estivale', date: '2026-09-29', type: 'article', canaux: ['web','fb','li'], assignes: ['margot'], statut: 'done', eventId: null, notes: '', partnerIds: ['volt'] },
+    { id: 'p1', titre: "Affiche – Cross d'ouverture", date: '2026-10-05', type: 'post', canaux: ['fb','ig'], assignes: ['julie'], statut: 'review', eventId: 'cross', notes: 'Visuel en attente de validation par Margot.', partnerIds: ['volt','banque'] },
+    { id: 'p2', titre: 'Jeu concours – lancement', date: '2026-10-06', type: 'post', canaux: ['ig','fb'], assignes: ['julie'], statut: 'scheduled', eventId: null, notes: 'Lot : séance de récupération offerte par Kinéo Santé.', partnerIds: ['kineo'] },
+    { id: 'p3', titre: 'Annonce formation juges niveau C', date: '2026-10-08', type: 'post', canaux: ['fb','li','web'], assignes: ['ben'], statut: 'scheduled', eventId: 'juges', notes: '' },
+    { id: 'p4', titre: 'Vidéo J-7 – Cross', date: '2026-10-11', type: 'video', canaux: ['ig','fb'], assignes: ['ben'], statut: 'doing', eventId: 'cross', notes: '' },
+    { id: 'p5', titre: 'Communiqué – annonce du cross', date: '2026-10-13', type: 'cp', canaux: ['presse','web'], assignes: ['margot'], statut: 'todo', eventId: 'cross', notes: '' },
+    { id: 'p6', titre: 'Story programme & horaires', date: '2026-10-17', type: 'story', canaux: ['ig'], assignes: ['julie'], statut: 'todo', eventId: 'cross', notes: '' },
+    { id: 'p7', titre: 'Couverture live du cross', date: '2026-10-18', type: 'story', canaux: ['ig'], assignes: ['julie'], statut: 'todo', eventId: 'cross', notes: 'Demander aux photographes 5 photos pendant la course pour les stories.' },
+    { id: 'p8', titre: 'Podiums – Cross', date: '2026-10-19', type: 'post', canaux: ['fb','ig','li'], assignes: ['julie'], statut: 'todo', eventId: 'cross', notes: '', partnerIds: ['banque'] },
+    { id: 'p9', titre: 'Communiqué – résultats du cross', date: '2026-10-19', type: 'cp', canaux: ['presse','web'], assignes: ['margot'], statut: 'todo', eventId: 'cross', notes: '' },
+    { id: 'p10', titre: 'Jeu concours – résultats en story', date: '2026-10-20', type: 'story', canaux: ['ig'], assignes: ['julie'], statut: 'todo', eventId: null, notes: '' },
+    { id: 'p11', titre: 'Retour en images – formation juges', date: '2026-10-26', type: 'post', canaux: ['fb','li'], assignes: ['ben'], statut: 'todo', eventId: 'juges', notes: '' },
+    { id: 'p12', titre: 'Sélection officielle – Europe de cross', date: '2026-10-28', type: 'post', canaux: ['fb','ig','li'], assignes: ['margot'], statut: 'todo', eventId: 'selection', notes: '', partnerIds: ['volt'] },
+    { id: 'p13', titre: 'Communiqué – sélection nationale', date: '2026-10-28', type: 'cp', canaux: ['presse','web'], assignes: ['margot'], statut: 'todo', eventId: 'selection', notes: '' },
+    { id: 'p14', titre: 'Marronnier – Halloween', date: '2026-10-31', type: 'story', canaux: ['ig'], assignes: ['ben'], statut: 'todo', eventId: null, notes: '' },
+  ],
+  tasks: [
+    { id: 't1', titre: "Visuels du cross d'ouverture", assigne: 'julie', echeance: '2026-10-03', statut: 'doing', eventId: 'cross' },
+    { id: 't2', titre: 'Mettre à jour le modèle de communiqué de presse', assigne: 'margot', echeance: '2026-10-09', statut: 'todo', eventId: null },
+    { id: 't3', titre: 'Relire le communiqué du cross', assigne: 'margot', echeance: '2026-10-12', statut: 'todo', eventId: 'cross' },
+    { id: 't4', titre: 'Lancer la vérification Meta (Facebook + Instagram)', assigne: 'margot', echeance: '2026-10-15', statut: 'todo', eventId: null },
+    { id: 't5', titre: 'Récupérer les photos du cross auprès des photographes (sous 48 h)', assigne: 'ben', echeance: '2026-10-20', statut: 'todo', eventId: 'cross' },
+    { id: 't6', titre: 'Préparer les tips n°10 (tournage)', assigne: 'julie', echeance: '2026-10-19', statut: 'todo', eventId: null },
+    { id: 't7', titre: 'Récupérer les photos de la formation juges', assigne: 'ben', echeance: '2026-10-24', statut: 'todo', eventId: 'juges' },
+    { id: 't8', titre: 'Sélection des meilleures photos du mois', assigne: 'ben', echeance: '2026-10-30', statut: 'todo', eventId: null },
+    { id: 't9', titre: 'Collecter les résultats des clubs', assigne: 'julie', echeance: '2026-09-30', statut: 'done', eventId: null },
+    { id: 't10', titre: 'Installer banderole Voltéa et beach flags Voltéa + Banque 3F au cross', assigne: 'ben', echeance: '2026-10-18', statut: 'todo', eventId: 'cross' },
+  ],
+  partners: [
+    { id: 'volt', nom: 'Voltéa Énergie', niveau: 'Partenaire principal', handle: '@voltea.energie', hue: 200,
+      contrat: { debut: '2026-01-01', fin: '2026-12-31' },
+      obligations: [
+        { id: 'o1', cat: 'social', mode: 'publications', libelle: 'Publications réseaux sociaux avec mention @voltea.energie', cible: 10,
+          historique: [{ date: '2026-03-02', titre: 'Podiums – nationaux en salle' }, { date: '2026-03-16', titre: 'Throwing cup' }, { date: '2026-05-11', titre: 'Meeting de printemps' }, { date: '2026-06-15', titre: 'Annonce des championnats nationaux' }, { date: '2026-07-01', titre: 'Vidéo J-15 nationaux' }] },
+        { id: 'o2', cat: 'terrain', mode: 'evenements', libelle: 'Banderole aux compétitions FLA', cible: 4,
+          items: [{ id: 'a', label: 'Nationaux en salle', date: '2026-02-28', fait: true, preuve: 'Photo de Paul' }, { id: 'b', label: 'Nationaux 10 km', date: '2026-03-15', fait: true, preuve: 'Photo de Paul' }, { id: 'c', label: 'Championnats nationaux', date: '2026-07-11', fait: true, preuve: 'Photo de Paul' }, { id: 'd', label: "Cross d'ouverture", date: '2026-10-18', fait: false, preuve: '' }] },
+        { id: 'o3', cat: 'terrain', mode: 'evenements', libelle: "Beach flags (4) à l'arrivée", cible: 6,
+          items: [{ id: 'a', label: 'Nationaux en salle', date: '2026-02-28', fait: true, preuve: 'Photo de Paul' }, { id: 'b', label: 'Meeting de printemps', date: '2026-05-10', fait: false, preuve: '' }, { id: 'c', label: 'Championnats nationaux', date: '2026-07-11', fait: true, preuve: 'Photo de Paul' }, { id: 'd', label: "Cross d'ouverture", date: '2026-10-18', fait: false, preuve: '' }] },
+        { id: 'o4', cat: 'newsletter', mode: 'rubrique', rubriqueId: 'newsletter', libelle: 'Encart dans la newsletter des licenciés (chaque numéro)' },
+        { id: 'o5', cat: 'print', mode: 'livrable', libelle: "Logo pleine page dans l'annuaire 2026", echeance: '2026-02-15', etape: 3 },
+        { id: 'o6', cat: 'print', mode: 'livrable', libelle: 'Encart dans le guide des courses sur route', echeance: '2026-04-01', etape: 3 },
+        { id: 'o7', cat: 'hospitalite', mode: 'quantite', libelle: 'Invitations aux championnats nationaux et au gala', cible: 8, fait: 6 },
+      ] },
+    { id: 'banque', nom: 'Banque des Trois Frontières', niveau: 'Partenaire officiel', handle: '@banque3f', hue: 150,
+      contrat: { debut: '2026-01-01', fin: '2026-12-31' },
+      obligations: [
+        { id: 'b1', cat: 'social', mode: 'publications', libelle: 'Publications réseaux sociaux avec mention @banque3f', cible: 6,
+          historique: [{ date: '2026-04-20', titre: 'Athlète 360° – portrait' }, { date: '2026-07-12', titre: 'Podiums des nationaux' }] },
+        { id: 'b2', cat: 'terrain', mode: 'evenements', libelle: 'Beach flags (2) aux compétitions', cible: 4,
+          items: [{ id: 'a', label: 'Relais des clubs', date: '2026-06-06', fait: true, preuve: 'Photo de Ben' }, { id: 'b', label: 'Championnats nationaux', date: '2026-07-11', fait: true, preuve: 'Photo de Paul' }, { id: 'c', label: "Cross d'ouverture", date: '2026-10-18', fait: false, preuve: '' }] },
+        { id: 'b3', cat: 'print', mode: 'livrable', libelle: "Présence dans l'annuaire 2026", echeance: '2026-02-15', etape: 3 },
+        { id: 'b4', cat: 'print', mode: 'livrable', libelle: 'Logo dans le guide des courses sur route 2027', echeance: '2026-11-15', etape: 0 },
+        { id: 'b5', cat: 'hospitalite', mode: 'quantite', libelle: 'Invitations au gala de fin de saison', cible: 4, fait: 0 },
+      ] },
+    { id: 'kineo', nom: 'Kinéo Santé', niveau: 'Fournisseur officiel', handle: '@kineo.sante', hue: 330,
+      contrat: { debut: '2026-03-01', fin: '2027-02-28' },
+      obligations: [
+        { id: 'k1', cat: 'social', mode: 'rubrique', rubriqueId: 'tips', libelle: "Rubrique « Les tips de l'athlétisme » présentée par Kinéo" },
+        { id: 'k2', cat: 'social', mode: 'publications', libelle: 'Publications avec mention @kineo.sante', cible: 4,
+          historique: [{ date: '2026-05-04', titre: 'Conseils récupération' }] },
+        { id: 'k3', cat: 'terrain', mode: 'evenements', libelle: 'Banderole aux championnats nationaux', cible: 2,
+          items: [{ id: 'a', label: 'Championnats nationaux', date: '2026-07-11', fait: true, preuve: 'Photo de Paul' }, { id: 'b', label: 'Nationaux en salle 2027', date: '2027-02-27', fait: false, preuve: '' }] },
+      ] },
+    { id: 'impr', nom: 'Imprimerie Centrale', niveau: 'Partenaire technique', handle: '', hue: 30,
+      contrat: { debut: '2025-12-01', fin: '2026-11-30' },
+      obligations: [
+        { id: 'i1', cat: 'newsletter', mode: 'quantite', libelle: 'Encart dans la newsletter (1 par trimestre)', cible: 4, fait: 3 },
+        { id: 'i2', cat: 'print', mode: 'livrable', libelle: 'Mention « imprimé par » dans le guide des courses sur route', echeance: '2026-04-01', etape: 3 },
+        { id: 'i3', cat: 'hospitalite', mode: 'quantite', libelle: 'Invitations aux championnats nationaux', cible: 2, fait: 2 },
+      ] },
+  ],
+  overrides: {
+    'r:tips:2026-10-23': { statut: 'doing', notes: 'Thème : bien choisir ses pointes de cross.' },
+  },
+};
+const LIENS = ["Baromètre mondial de l'athlétisme", "Les tips de l'athlétisme", 'Charte graphique FLA'];
+
+const KEY = 'fla-maquette-v3';
+const clone = o => JSON.parse(JSON.stringify(o));
+function loadState() {
+  try { const s = localStorage.getItem(KEY); if (s) return JSON.parse(s); } catch (e) {}
+  return clone(SEED);
+}
+
+// Une occurrence est identifiée par sa date d'origine ; si elle est déplacée, elle s'affiche à `movedTo`.
+function makeOcc(state, r, orig) {
+  const id = `r:${r.id}:${orig}`;
+  const ov = state.overrides[id] || {};
+  if (ov.annule) return null;
+  const { movedTo, ...rest } = ov;
+  const date = movedTo || orig;
+  return { id, virtual: true, rubriqueId: r.id, origDate: orig, date, titre: r.titre, type: r.type, canaux: r.canaux,
+    assignes: [r.resp], statut: date < TODAY ? 'done' : 'todo', notes: '', eventId: null, partnerIds: r.partnerIds || [],
+    ...rest, modified: Object.keys(ov).length > 0 };
+}
+function buildItems(state, start, end) {
+  const out = [];
+  for (let d = parse(start); ymd(d) <= end; d = addDays(d, 1)) {
+    const ds = ymd(d);
+    for (const r of state.rubriques) {
+      if (!r.active || !occurs(ruleAt(r, ds), d)) continue;
+      const ov = state.overrides[`r:${r.id}:${ds}`];
+      if (ov && ov.movedTo) continue;
+      const it = makeOcc(state, r, ds);
+      if (it) out.push(it);
+    }
+  }
+  for (const [id, ov] of Object.entries(state.overrides)) {
+    if (!ov.movedTo || ov.annule || ov.movedTo < start || ov.movedTo > end) continue;
+    const r = state.rubriques.find(x => x.id === id.split(':')[1]);
+    if (r && r.active) { const it = makeOcc(state, r, id.slice(-10)); if (it) out.push(it); }
+  }
+  for (const p of state.pubs) if (p.date >= start && p.date <= end) out.push(p);
+  return out.sort((a, b) => a.date.localeCompare(b.date) || (a.virtual === b.virtual ? 0 : a.virtual ? -1 : 1));
+}
+function findItem(state, id) {
+  if (!id) return null;
+  if (id.startsWith('r:')) {
+    const r = state.rubriques.find(x => x.id === id.split(':')[1]);
+    return r ? makeOcc(state, r, id.slice(-10)) : null;
+  }
+  return state.pubs.find(p => p.id === id) || null;
+}
+
+/* ---------- Partenaires : calcul de l'avancement ---------- */
+const CATS = { social: 'Réseaux sociaux', terrain: 'Terrain & événements', newsletter: 'Newsletter', print: 'Print (annuaire, guides)', hospitalite: 'Invitations' };
+const MODES = { publications: 'Auto · publications liées', rubrique: 'Auto · rubrique récurrente', evenements: 'Par événement', livrable: 'Livrable', quantite: 'Quantité' };
+const ETAPES = ['Fichier à recevoir', 'Fichier reçu', 'BAT validé', 'Publié / imprimé'];
+const OBST = { late: 'En retard', risk: 'À risque', ontrack: 'Dans les temps', done: 'Terminé' };
+const daysBetween = (a, b) => Math.round((parse(b) - parse(a)) / 86400000);
+
+function progress(state, partner, ob) {
+  const { debut, fin } = partner.contrat;
+  const frac = Math.min(1, Math.max(0, daysBetween(debut, TODAY) / daysBetween(debut, fin)));
+  let fait = 0, cible = ob.cible || 1, attendu = null, prevus = 0, liste = [];
+  if (ob.mode === 'publications') {
+    const pubs = state.pubs.filter(p => (p.partnerIds || []).includes(partner.id) && p.date >= debut && p.date <= fin);
+    const done = pubs.filter(p => p.statut === 'done');
+    fait = (ob.historique || []).length + done.length;
+    prevus = pubs.length - done.length;
+    liste = [...(ob.historique || []).map(h => ({ ...h, hist: true })), ...pubs].sort((a, b) => a.date.localeCompare(b.date));
+    attendu = Math.floor(cible * frac);
+  } else if (ob.mode === 'rubrique') {
+    const r = state.rubriques.find(x => x.id === ob.rubriqueId);
+    cible = 0; attendu = 0;
+    for (let d = parse(debut); ymd(d) <= fin; d = addDays(d, 1)) {
+      const ds = ymd(d);
+      if (!occurs(ruleAt(r, ds), d)) continue;
+      const ov = state.overrides[`r:${r.id}:${ds}`] || {};
+      if (ov.annule) continue;
+      cible++;
+      const date = ov.movedTo || ds;
+      if (date < TODAY) { attendu++; if ((ov.statut || 'done') === 'done') fait++; } else prevus++;
+    }
+  } else if (ob.mode === 'evenements') {
+    fait = ob.items.filter(i => i.fait).length;
+    attendu = ob.items.filter(i => i.date < TODAY).length;
+    prevus = ob.items.filter(i => !i.fait && i.date >= TODAY).length;
+  } else if (ob.mode === 'livrable') {
+    fait = ob.etape === 3 ? 1 : 0;
+    attendu = ob.echeance < TODAY ? 1 : 0;
+  } else {
+    fait = ob.fait;
+  }
+  let statut = 'ontrack';
+  if (fait >= cible) statut = 'done';
+  else if (attendu !== null && fait < attendu) statut = 'late';
+  else if (daysBetween(TODAY, fin) <= 60) statut = 'risk';
+  else if (ob.mode === 'livrable' && daysBetween(TODAY, ob.echeance) <= 45 && ob.etape < 2) statut = 'risk';
+  return { fait, cible, attendu, prevus, statut, liste, frac };
+}
+const partnerPct = (state, p) => {
+  const vals = p.obligations.map(o => { const g = progress(state, p, o); return Math.min(1, g.fait / g.cible); });
+  return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+};
+
+/* ---------- Petits composants ---------- */
+const Avatar = ({ id }) => { const p = person(id); if (!p) return null;
+  return html`<span className="av" title=${p.nom} style=${{ background: `hsl(${p.hue} 55% 42%)` }}>${p.nom.slice(0, 1)}</span>`; };
+const Avatars = ({ ids }) => html`<span className="avs">${ids.map(id => html`<${Avatar} key=${id} id=${id} />`)}</span>`;
+const TypeTag = ({ type }) => html`<span className="ttag" style=${{ '--tc': TYPES[type].v }}>${TYPES[type].label}</span>`;
+const Canaux = ({ list }) => list.map(c => html`<span key=${c} className="ctag" title=${CANAUX[c].label}>${CANAUX[c].s}</span>`);
+const StatusPill = ({ s }) => html`<span className="spill"><span className=${'st ' + s}></span>${ST[s]}</span>`;
+
+function Chip({ item, onOpen, draggable }) {
+  return html`<button className=${'chip' + (item.date < TODAY ? ' past' : '')} style=${{ '--tc': TYPES[item.type].v }}
+    title=${`${item.titre} · ${ST[item.statut]}${draggable ? ' · glisser pour déplacer' : ''}`} onClick=${e => { e.stopPropagation(); onOpen(item.id); }}
+    draggable=${draggable} onDragStart=${e => { e.dataTransfer.setData('text/plain', item.id); e.dataTransfer.effectAllowed = 'move'; }}>
+    <span className=${'st ' + item.statut}></span>
+    <span className="t">${item.titre}</span>
+    ${(item.partnerIds || []).length > 0 && html`<span className="rec" title="Mentionne un partenaire">★</span>`}
+    ${item.virtual && html`<span className="rec" title="Rubrique récurrente">↻</span>`}
+  </button>`;
+}
+
+function AgendaItem({ item, onOpen, state }) {
+  const ev = item.eventId && state.events.find(e => e.id === item.eventId);
+  return html`<button className="aitem" style=${{ '--tc': TYPES[item.type].v }} onClick=${() => onOpen(item.id)}>
+    <span className="t">${item.titre}</span>
+    <${Avatars} ids=${item.assignes} />
+    <span className="meta">
+      <${TypeTag} type=${item.type} /><${Canaux} list=${item.canaux} />
+      ${item.virtual && html`<span>↻ ${item.modified ? 'récurrent · modifié' : 'récurrent'}</span>`}
+      ${ev && html`<span>◆ ${ev.titre}</span>`}
+    </span>
+    <${StatusPill} s=${item.statut} />
+  </button>`;
+}
+
+/* ---------- Calendrier ---------- */
+function CalendarView({ state, user, month, setMonth, mode, setMode, filters, setFilters, onOpen, onNew, onMove }) {
+  const [over, setOver] = useState(null);
+  const first = new Date(month.y, month.m, 1);
+  const start = addDays(first, -((first.getDay() + 6) % 7));
+  const last = new Date(month.y, month.m + 1, 0);
+  const weeks = Math.ceil((((first.getDay() + 6) % 7) + last.getDate()) / 7);
+  const days = Array.from({ length: weeks * 7 }, (_, i) => addDays(start, i));
+  const items = useMemo(() => buildItems(state, ymd(days[0]), ymd(days[days.length - 1])).filter(i =>
+    (user.role !== 'externe' || i.assignes.includes(user.id)) &&
+    (!filters.type || i.type === filters.type) &&
+    (!filters.canal || i.canaux.includes(filters.canal)) &&
+    (!filters.personne || i.assignes.includes(filters.personne)) &&
+    (!filters.partenaire || (i.partnerIds || []).includes(filters.partenaire)) &&
+    (filters.recurrents || !i.virtual)
+  ), [state, user, month, filters]);
+  const byDate = {};
+  items.forEach(i => (byDate[i.date] = byDate[i.date] || []).push(i));
+  const evByDate = {};
+  state.events.forEach(e => {
+    if (user.role === 'externe' && !state.tasks.some(t => t.eventId === e.id && t.assigne === user.id)) return;
+    (evByDate[e.date] = evByDate[e.date] || []).push(e);
+  });
+  const go = n => setMonth(({ y, m }) => { const d = new Date(y, m + n, 1); return { y: d.getFullYear(), m: d.getMonth() }; });
+  const set = (k, v) => setFilters(f => ({ ...f, [k]: v }));
+  const canEdit = user.role !== 'externe';
+
+  const monthDays = days.filter(d => d.getMonth() === month.m);
+  return html`<${React.Fragment}>
+    <div className="top">
+      <div className="row">
+        <button className="btn icon" onClick=${() => go(-1)} aria-label="Mois précédent">‹</button>
+        <h2>${MOIS[month.m]} ${month.y}</h2>
+        <button className="btn icon" onClick=${() => go(1)} aria-label="Mois suivant">›</button>
+        <button className="btn ghost" onClick=${() => setMonth({ y: 2026, m: 9 })}>Aujourd'hui</button>
+      </div>
+      <div className="row">
+        <div className="seg">
+          <button className=${mode === 'mois' ? 'on' : ''} onClick=${() => setMode('mois')}>Mois</button>
+          <button className=${mode === 'agenda' ? 'on' : ''} onClick=${() => setMode('agenda')}>Liste</button>
+        </div>
+        ${canEdit && html`<button className="btn primary" onClick=${() => onNew({ date: TODAY })}>+ Publication</button>`}
+      </div>
+    </div>
+    ${user.role === 'externe' && html`<div className="notice"><strong>Vue extérieur.</strong> ${user.nom} ne voit que les publications, tâches et événements qui lui sont assignés. Le reste du calendrier lui est masqué.</div>`}
+    <div className="filters">
+      <select id="f-type" value=${filters.type} onChange=${e => set('type', e.target.value)} aria-label="Type">
+        <option value="">Tous les types</option>
+        ${Object.entries(TYPES).map(([k, t]) => html`<option key=${k} value=${k}>${t.label}</option>`)}
+      </select>
+      <select id="f-canal" value=${filters.canal} onChange=${e => set('canal', e.target.value)} aria-label="Réseau">
+        <option value="">Tous les canaux</option>
+        ${Object.entries(CANAUX).map(([k, c]) => html`<option key=${k} value=${k}>${c.label}</option>`)}
+      </select>
+      ${canEdit && html`<select id="f-pers" value=${filters.personne} onChange=${e => set('personne', e.target.value)} aria-label="Personne">
+        <option value="">Toute l'équipe</option>
+        ${PEOPLE.map(p => html`<option key=${p.id} value=${p.id}>${p.nom}</option>`)}
+      </select>`}
+      ${canEdit && html`<select id="f-part" value=${filters.partenaire} onChange=${e => set('partenaire', e.target.value)} aria-label="Partenaire">
+        <option value="">Tous les partenaires</option>
+        ${state.partners.map(p => html`<option key=${p.id} value=${p.id}>${p.nom}</option>`)}
+      </select>`}
+      <label className="check"><input id="f-rec" type="checkbox" checked=${filters.recurrents} onChange=${e => set('recurrents', e.target.checked)} /> Afficher les rubriques récurrentes</label>
+    </div>
+    <div className="legend">
+      ${Object.entries(TYPES).map(([k, t]) => html`<span key=${k}><i className="sw" style=${{ '--tc': t.v }}></i>${t.label}</span>`)}
+      <span>↻ récurrent</span><span>★ partenaire</span>
+      ${canEdit && mode === 'mois' && html`<span>Glissez une publication sur un autre jour pour la déplacer</span>`}
+      ${STATUTS.map(([k, l]) => html`<span key=${k}><i className=${'st ' + k}></i>${l}</span>`)}
+    </div>
+    ${mode === 'mois' ? html`<div className="month" role="grid">
+      ${JOURS_C.map(j => html`<div key=${j} className="dow">${j}</div>`)}
+      ${days.map(d => { const ds = ymd(d); const list = byDate[ds] || [];
+        const cls = ['cell', d.getMonth() !== month.m && 'out', ds === TODAY && 'today', (d.getDay() === 0 || d.getDay() === 6) && 'we'].filter(Boolean).join(' ');
+        return html`<div key=${ds} className=${cls + (over === ds ? ' over' : '')} onClick=${() => canEdit && onNew({ date: ds })}
+          onDragOver=${e => { if (!canEdit) return; e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (over !== ds) setOver(ds); }}
+          onDragLeave=${e => { if (!e.currentTarget.contains(e.relatedTarget)) setOver(o => (o === ds ? null : o)); }}
+          onDrop=${e => { e.preventDefault(); setOver(null); const id = e.dataTransfer.getData('text/plain'); if (id) onMove(id, ds); }}>
+          <div className="cellhead"><span className="dnum num">${d.getDate()}</span>${canEdit && html`<button className="add" aria-label=${'Ajouter le ' + fmtLong(ds)}>+</button>`}</div>
+          ${(evByDate[ds] || []).map(e => html`<div key=${e.id} className="evflag" title=${e.titre}>◆ ${e.titre}</div>`)}
+          ${list.map(i => html`<${Chip} key=${i.id} item=${i} onOpen=${onOpen} draggable=${canEdit} />`)}
+        </div>`; })}
+    </div>` : html`<div className="agenda">
+      ${monthDays.filter(d => (byDate[ymd(d)] || []).length || evByDate[ymd(d)] || ymd(d) === TODAY).map(d => { const ds = ymd(d);
+        return html`<div key=${ds} className=${'aday' + (ds === TODAY ? ' today' : '')}>
+          <div className="adate"><b className="num">${d.getDate()}</b><span>${JOURS[d.getDay()].slice(0, 3)}.</span></div>
+          <div className="alist">
+            ${(evByDate[ds] || []).map(e => html`<div key=${e.id} className="evflag">◆ ${e.titre}</div>`)}
+            ${(byDate[ds] || []).map(i => html`<${AgendaItem} key=${i.id} item=${i} onOpen=${onOpen} state=${state} />`)}
+            ${!(byDate[ds] || []).length && html`<span className="meta">Rien de prévu aujourd'hui.</span>`}
+          </div>
+        </div>`; })}
+    </div>`}
+  <//>`;
+}
+
+/* ---------- Panneau de détail ---------- */
+function Drawer({ item, state, user, onClose, onUpdate, onCancelOcc, onDelete, onMove }) {
+  const [confirm, setConfirm] = useState(false);
+  useEffect(() => setConfirm(false), [item.id]);
+  const rub = item.virtual && state.rubriques.find(r => r.id === item.rubriqueId);
+  const ev = item.eventId && state.events.find(e => e.id === item.eventId);
+  const ext = user.role === 'externe';
+  const upd = patch => onUpdate(item.id, patch);
+  const pids = item.partnerIds || [];
+  const toggle = (key, v) => { const arr = item[key] || []; upd({ [key]: arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v] }); };
+  const evTasks = ev ? state.tasks.filter(t => t.eventId === ev.id) : [];
+  return html`<${React.Fragment}>
+    <div className="backdrop" onClick=${onClose}></div>
+    <aside className="drawer" role="dialog" aria-label=${item.titre}>
+      <div className="dhead"><${TypeTag} type=${item.type} /><button className="btn ghost icon" onClick=${onClose} aria-label="Fermer">✕</button></div>
+      <div className="dbody">
+        <div className="field">
+          ${item.virtual || ext ? html`<h3>${item.titre}</h3>` :
+            html`<input id="d-titre" className="titleinput" type="text" value=${item.titre} onChange=${e => upd({ titre: e.target.value })} />`}
+          <div className="meta" style=${{ fontSize: '14px' }}>
+            ${ext ? html`<span style=${{ textTransform: 'capitalize' }}>${fmtLong(item.date)}</span>` :
+              html`<input id="d-date" type="date" value=${item.date} onChange=${e => e.target.value && e.target.value !== item.date && onMove(item.id, e.target.value)} />`}
+            ${ev && html`<span>◆ ${ev.titre}</span>`}
+          </div>
+        </div>
+        ${rub && html`<div className="info">↻ Occurrence de la rubrique <b>${rub.titre}</b> (${ruleLabel(rub.rule).toLowerCase()}). Les changements faits ici ne concernent que cette date ; la rubrique reste inchangée pour les autres semaines.${item.origDate !== item.date ? ` Déplacée depuis le ${fmtLong(item.origDate)}.` : item.modified ? ' Cette date a été personnalisée.' : ''}</div>`}
+        <div className="field"><span className="label">Statut</span>
+          <div className="toggles">${STATUTS.map(([k, l]) => html`<button key=${k} className=${'tog' + (item.statut === k ? ' on' : '')} onClick=${() => upd({ statut: k })}><span className=${'st ' + k}></span>${l}</button>`)}</div>
+        </div>
+        <div className="field"><span className="label">Canaux</span>
+          <div className="toggles">${Object.entries(CANAUX).map(([k, c]) => html`<button key=${k} disabled=${ext} className=${'tog' + (item.canaux.includes(k) ? ' on' : '')} onClick=${() => toggle('canaux', k)}>${c.label}</button>`)}</div>
+        </div>
+        <div className="field"><span className="label">Assigné à</span>
+          <div className="toggles">${PEOPLE.map(p => html`<button key=${p.id} disabled=${ext} className=${'tog' + (item.assignes.includes(p.id) ? ' on' : '')} onClick=${() => toggle('assignes', p.id)}><${Avatar} id=${p.id} />${p.nom}</button>`)}</div>
+        </div>
+        ${!ext && html`<div className="field"><span className="label">Partenaires mentionnés</span>
+          <div className="toggles">${state.partners.map(p => html`<button key=${p.id} className=${'tog' + (pids.includes(p.id) ? ' on' : '')} onClick=${() => toggle('partnerIds', p.id)}>★ ${p.nom}</button>`)}</div>
+          ${pids.length > 0 && html`<div className="checks">${pids.map(pid => { const p = state.partners.find(x => x.id === pid); if (!p) return null;
+            return ['logo', 'mention'].map(k => html`<label key=${pid + k} className="check"><input type="checkbox" id=${'chk-' + pid + k}
+              checked=${!!(item.checks || {})[pid + ':' + k]} onChange=${e => upd({ checks: { ...(item.checks || {}), [pid + ':' + k]: e.target.checked } })} />
+              ${k === 'logo' ? `Logo ${p.nom} présent sur le visuel` : `Mention ${p.handle || p.nom} dans le texte`}</label>`); })}</div>
+            <span className="meta">Une fois publiée, cette publication compte dans les contreparties du partenaire.</span>`}
+        </div>`}
+        ${!item.virtual && !ext && html`<div className="field"><label className="label" htmlFor="d-ev">Événement</label>
+          <select id="d-ev" value=${item.eventId || ''} onChange=${e => upd({ eventId: e.target.value || null })}>
+            <option value="">Aucun</option>
+            ${state.events.map(e => html`<option key=${e.id} value=${e.id}>${e.titre}</option>`)}
+          </select></div>`}
+        ${(item.photos || []).length > 0 && html`<div className="field"><span className="label">Photos jointes depuis la galerie (${item.photos.length})</span>
+          <div className="thumbs">${item.photos.map((ph, k) => html`<span key=${k} style=${{ background: photoBg(ph.hue, ph.k) }} title=${`${ph.album} · © ${ph.credit}`}></span>`)}</div>
+          <span className="meta">Crédit à mentionner : © ${[...new Set(item.photos.map(p => p.credit))].join(', ')} / FLA</span></div>`}
+        <div className="field"><label className="label" htmlFor="d-notes">Notes, liens vers les visuels</label>
+          <textarea id="d-notes" value=${item.notes || ''} placeholder="Texte du post, lien Drive/Canva, consignes…" onChange=${e => upd({ notes: e.target.value })}></textarea>
+        </div>
+        ${evTasks.length > 0 && html`<div className="field"><span className="label">Tâches liées à l'événement</span>
+          <ul className="mini">${evTasks.map(t => html`<li key=${t.id}><span className=${'st ' + (t.statut === 'done' ? 'done' : t.statut)}></span><span style=${{ flex: 1 }}>${t.titre}</span><${Avatar} id=${t.assigne} /></li>`)}</ul></div>`}
+        ${item.statut === 'done' && html`<div className="field"><span className="label">Statistiques · prévu en V2 · chiffres fictifs</span>
+          <div className="stats"><div><b className="num">2 340</b><span>Portée</span></div><div><b className="num">187</b><span>Interactions</span></div><div><b className="num">8,0 %</b><span>Engagement</span></div></div></div>`}
+      </div>
+      ${!ext && html`<div className="dfoot">
+        ${confirm ? html`<span className="row"><span className="meta">${item.virtual ? 'Retirer cette date du calendrier ?' : 'Supprimer définitivement ?'}</span>
+            <button className="btn danger" onClick=${() => item.virtual ? onCancelOcc(item.id) : onDelete(item.id)}>Confirmer</button>
+            <button className="btn ghost" onClick=${() => setConfirm(false)}>Garder</button></span>` :
+          html`<button className="btn danger" onClick=${() => setConfirm(true)}>${item.virtual ? 'Annuler cette date' : 'Supprimer'}</button>`}
+        <button className="btn" onClick=${onClose}>Fermer</button>
+      </div>`}
+    </aside>
+  <//>`;
+}
+
+/* ---------- Modales de création ---------- */
+function Modal({ title, onClose, onSubmit, children, submitLabel }) {
+  return html`<div className="modal">
+    <div className="backdrop" onClick=${onClose}></div>
+    <form className="dialog" onSubmit=${e => { e.preventDefault(); onSubmit(new FormData(e.target)); }}>
+      <h3>${title}</h3>
+      ${children}
+      <div className="row" style=${{ justifyContent: 'flex-end' }}>
+        <button type="button" className="btn ghost" onClick=${onClose}>Annuler</button>
+        <button type="submit" className="btn primary">${submitLabel}</button>
+      </div>
+    </form>
+  </div>`;
+}
+function NewPub({ preset, state, onClose, onCreate }) {
+  const [canaux, setCanaux] = useState(['fb', 'ig']);
+  const [assignes, setAssignes] = useState(preset.assignes || []);
+  const [partnerIds, setPartnerIds] = useState(preset.partnerIds || []);
+  const tg = (arr, set, v) => set(arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v]);
+  return html`<${Modal} title="Nouvelle publication" submitLabel="Ajouter au calendrier" onClose=${onClose}
+    onSubmit=${fd => onCreate({ titre: fd.get('titre') || 'Sans titre', date: fd.get('date'), type: fd.get('type'), eventId: fd.get('ev') || null, statut: 'todo', canaux, assignes, partnerIds, notes: '' })}>
+    <div className="field"><label className="label" htmlFor="n-titre">Titre</label><input id="n-titre" name="titre" type="text" required placeholder="Ex. Podiums des championnats" autoFocus /></div>
+    <div className="grid2">
+      <div className="field"><label className="label" htmlFor="n-date">Date</label><input id="n-date" name="date" type="date" required defaultValue=${preset.date} /></div>
+      <div className="field"><label className="label" htmlFor="n-type">Type</label>
+        <select id="n-type" name="type">${Object.entries(TYPES).map(([k, t]) => html`<option key=${k} value=${k}>${t.label}</option>`)}</select></div>
+    </div>
+    <div className="field"><span className="label">Canaux</span>
+      <div className="toggles">${Object.entries(CANAUX).map(([k, c]) => html`<button type="button" key=${k} className=${'tog' + (canaux.includes(k) ? ' on' : '')} onClick=${() => tg(canaux, setCanaux, k)}>${c.label}</button>`)}</div></div>
+    <div className="field"><span className="label">Assigné à</span>
+      <div className="toggles">${PEOPLE.map(p => html`<button type="button" key=${p.id} className=${'tog' + (assignes.includes(p.id) ? ' on' : '')} onClick=${() => tg(assignes, setAssignes, p.id)}><${Avatar} id=${p.id} />${p.nom}</button>`)}</div></div>
+    <div className="field"><label className="label" htmlFor="n-ev">Événement</label>
+      <select id="n-ev" name="ev" defaultValue=${preset.eventId || ''}><option value="">Aucun</option>${state.events.map(e => html`<option key=${e.id} value=${e.id}>${e.titre}</option>`)}</select></div>
+    <div className="field"><span className="label">Partenaires mentionnés</span>
+      <div className="toggles">${state.partners.map(p => html`<button type="button" key=${p.id} className=${'tog' + (partnerIds.includes(p.id) ? ' on' : '')} onClick=${() => tg(partnerIds, setPartnerIds, p.id)}>★ ${p.nom}</button>`)}</div></div>
+  <//>`;
+}
+function NewTask({ preset, state, user, onClose, onCreate }) {
+  return html`<${Modal} title="Nouvelle tâche" submitLabel="Créer la tâche" onClose=${onClose}
+    onSubmit=${fd => onCreate({ titre: fd.get('titre') || 'Sans titre', assigne: fd.get('assigne'), echeance: fd.get('echeance'), eventId: fd.get('ev') || null, statut: 'todo' })}>
+    <div className="field"><label className="label" htmlFor="k-titre">Tâche</label><input id="k-titre" name="titre" type="text" required placeholder="Ex. Préparer les visuels" autoFocus /></div>
+    <div className="grid2">
+      <div className="field"><label className="label" htmlFor="k-ass">Pour</label>
+        <select id="k-ass" name="assigne" defaultValue=${preset.assigne || user.id}>${PEOPLE.map(p => html`<option key=${p.id} value=${p.id}>${p.nom} (${ROLE[p.role]})</option>`)}</select></div>
+      <div className="field"><label className="label" htmlFor="k-date">Échéance</label><input id="k-date" name="echeance" type="date" required defaultValue=${preset.date || TODAY} /></div>
+    </div>
+    <div className="field"><label className="label" htmlFor="k-ev">Événement</label>
+      <select id="k-ev" name="ev" defaultValue=${preset.eventId || ''}><option value="">Aucun</option>${state.events.map(e => html`<option key=${e.id} value=${e.id}>${e.titre}</option>`)}</select></div>
+  <//>`;
+}
+function NewEvent({ onClose, onCreate }) {
+  return html`<${Modal} title="Nouvel événement" submitLabel="Créer l'événement" onClose=${onClose}
+    onSubmit=${fd => onCreate({ titre: fd.get('titre') || 'Sans titre', date: fd.get('date'), lieu: fd.get('lieu') || '' })}>
+    <div className="field"><label className="label" htmlFor="e-titre">Nom</label><input id="e-titre" name="titre" type="text" required placeholder="Ex. Championnats nationaux en salle" autoFocus /></div>
+    <div className="grid2">
+      <div className="field"><label className="label" htmlFor="e-date">Date</label><input id="e-date" name="date" type="date" required defaultValue=${TODAY} /></div>
+      <div className="field"><label className="label" htmlFor="e-lieu">Lieu</label><input id="e-lieu" name="lieu" type="text" /></div>
+    </div>
+  <//>`;
+}
+
+/* ---------- Tâches ---------- */
+function TasksView({ state, user, onUpdateTask, onNewTask, onOpen }) {
+  const [scope, setScope] = useState('moi');
+  const ext = user.role === 'externe';
+  const mine = ext || scope === 'moi';
+  const tasks = state.tasks.filter(t => !mine || t.assigne === user.id).sort((a, b) => a.echeance.localeCompare(b.echeance));
+  const end = ymd(addDays(parse(TODAY), 21));
+  const upcoming = buildItems(state, TODAY, end).filter(i => i.statut !== 'done' && (!mine || i.assignes.includes(user.id)) && (!ext || i.assignes.includes(user.id)));
+  const move = (t, dir) => { const idx = TSTATUTS.findIndex(s => s[0] === t.statut); const n = TSTATUTS[idx + dir]; if (n) onUpdateTask(t.id, { statut: n[0] }); };
+  return html`<${React.Fragment}>
+    <div className="top">
+      <h2>${mine ? 'Mes tâches' : "Tâches de l'équipe"}</h2>
+      <div className="row">
+        ${!ext && html`<div className="seg"><button className=${scope === 'moi' ? 'on' : ''} onClick=${() => setScope('moi')}>Mes tâches</button><button className=${scope === 'equipe' ? 'on' : ''} onClick=${() => setScope('equipe')}>Toute l'équipe</button></div>`}
+        ${!ext && html`<button className="btn primary" onClick=${() => onNewTask({})}>+ Tâche</button>`}
+      </div>
+    </div>
+    <div className="board">
+      ${TSTATUTS.map(([k, l], ci) => { const list = tasks.filter(t => t.statut === k);
+        return html`<div key=${k} className="col">
+          <div className="colhead"><h4>${l}</h4><span className="meta num">${list.length}</span></div>
+          ${list.map(t => { const ev = t.eventId && state.events.find(e => e.id === t.eventId); const late = t.statut !== 'done' && t.echeance < TODAY;
+            return html`<div key=${t.id} className="card">
+              <span className="t">${t.titre}</span>
+              ${ev && html`<span className="meta">◆ ${ev.titre}</span>`}
+              <div className="cardfoot">
+                <span className="row"><${Avatar} id=${t.assigne} /><span className=${'due num' + (late ? ' late' : '')}>${late ? 'En retard · ' : 'Pour le '}${fmtShort(t.echeance)}</span></span>
+                <span className="moves">
+                  ${ci > 0 && html`<button onClick=${() => move(t, -1)} aria-label="Reculer">←</button>`}
+                  ${ci < 2 && html`<button onClick=${() => move(t, 1)} aria-label="Avancer">→</button>`}
+                </span>
+              </div>
+            </div>`; })}
+          ${!list.length && html`<span className="meta" style=${{ padding: '4px' }}>Aucune tâche.</span>`}
+        </div>`; })}
+    </div>
+    <h3 className="section-title">Publications à produire · 3 prochaines semaines</h3>
+    <div className="agenda">
+      ${upcoming.length ? upcoming.map(i => html`<div key=${i.id} className="aday">
+        <div className="adate"><b className="num">${parse(i.date).getDate()}</b><span>${MOIS_C[parse(i.date).getMonth()]}</span></div>
+        <div className="alist"><${AgendaItem} item=${i} onOpen=${onOpen} state=${state} /></div>
+      </div>`) : html`<div className="empty">Rien à produire sur cette période.</div>`}
+    </div>
+  <//>`;
+}
+
+/* ---------- Événements ---------- */
+function EventsView({ state, user, onOpen, onNewPub, onNewEvent }) {
+  const ext = user.role === 'externe';
+  return html`<${React.Fragment}>
+    <div className="top"><h2>Événements</h2>${!ext && html`<button className="btn primary" onClick=${onNewEvent}>+ Événement</button>`}</div>
+    <p className="notice">Un événement regroupe toutes les communications qui s'y rattachent, de l'affiche au communiqué de résultats, avec les tâches de chacun.</p>
+    <div className="events">
+      ${[...state.events].sort((a, b) => a.date.localeCompare(b.date)).map(e => {
+        const pubs = state.pubs.filter(p => p.eventId === e.id).sort((a, b) => a.date.localeCompare(b.date));
+        const tasks = state.tasks.filter(t => t.eventId === e.id);
+        const ready = pubs.filter(p => p.statut === 'done' || p.statut === 'scheduled').length;
+        return html`<article key=${e.id} className="evcard">
+          <div className="field"><span className="label num">${fmtLong(e.date)}${e.lieu ? ' · ' + e.lieu : ''}</span><h4>${e.titre}</h4></div>
+          <div className="field"><div className="meta"><span className="num">${ready} / ${pubs.length} publications prêtes</span><span>·</span><span className="num">${tasks.filter(t => t.statut === 'done').length} / ${tasks.length} tâches faites</span></div>
+            <div className="bar"><i style=${{ width: pubs.length ? `${(ready / pubs.length) * 100}%` : '0%' }}></i></div></div>
+          <ul className="tl">
+            ${pubs.map(p => html`<li key=${p.id}><span className="meta num">${fmtShort(p.date)}</span><button onClick=${() => onOpen(p.id)} title=${p.titre}>${p.titre}</button><span className=${'st ' + p.statut} title=${ST[p.statut]}></span></li>`)}
+            ${!pubs.length && html`<li><span></span><span className="meta">Aucune publication pour l'instant.</span><span></span></li>`}
+          </ul>
+          ${!ext && html`<button className="btn" style=${{ width: 'fit-content' }} onClick=${() => onNewPub({ date: e.date, eventId: e.id })}>+ Publication pour cet événement</button>`}
+        </article>`; })}
+    </div>
+  <//>`;
+}
+
+/* ---------- Rubriques récurrentes ---------- */
+function RubriquesView({ state, user, onToggle }) {
+  const admin = user.role === 'admin';
+  return html`<${React.Fragment}>
+    <div className="top"><h2>Rubriques récurrentes</h2></div>
+    <p className="notice">Ces rubriques remplissent le calendrier automatiquement, sans saisie. Elles reprennent le calendrier type 2026 de la fédération. ${admin ? 'Désactiver une rubrique la retire de toutes les semaines à venir.' : 'Seul un responsable com peut les modifier.'}</p>
+    <div className="tablewrap"><table>
+      <thead><tr><th>Rubrique</th><th>Rythme</th><th>Type</th><th>Canaux</th><th>Responsable</th><th>Active</th></tr></thead>
+      <tbody>${state.rubriques.map(r => html`<tr key=${r.id}>
+        <td><b>${r.titre}</b></td><td className="rule">${ruleLabel(r.rule)}</td><td><${TypeTag} type=${r.type} /></td>
+        <td><span className="meta"><${Canaux} list=${r.canaux} /></span></td>
+        <td><span className="row"><${Avatar} id=${r.resp} />${person(r.resp).nom}</span></td>
+        <td><button className=${'switch' + (r.active ? ' on' : '')} disabled=${!admin} aria-pressed=${r.active} aria-label=${'Activer ' + r.titre} onClick=${() => onToggle(r.id)}></button></td>
+      </tr>`)}</tbody>
+    </table></div>
+    <div className="notice"><strong>Autres publications selon l'actualité</strong> (ajoutées à la main) : sélections en équipe nationale, couverture des compétitions internationales, records et meilleures performances nationales, compétitions majeures au Luxembourg, marronniers.</div>
+  <//>`;
+}
+
+/* ---------- Présence des photographes (lecture seule) ---------- */
+function PresenceView() {
+  const covered = c => c.st.filter(s => s === 'confirmed').length;
+  return html`<${React.Fragment}>
+    <div className="top"><h2>Présence photographes</h2><span className="pill">Lecture seule · géré dans MyFLA</span></div>
+    <div className="notice">Les photographes déclarent leurs disponibilités dans <strong>MyFLA</strong>, et c'est là que la coordination photo les gère. Communication les lit en lecture seule, sans compte partagé, pour préparer la communication. <span className="meta">Un lien « Ouvrir dans MyFLA » mène à la page présence de MyFLA (connexion MyFLA séparée).</span></div>
+    <div className="tablewrap"><table>
+      <thead><tr><th>Compétition</th>${PRESENCE.photographes.map(p => html`<th key=${p}>${p}</th>`)}<th>Couverture</th></tr></thead>
+      <tbody>${PRESENCE.competitions.map(c => { const n = covered(c);
+        return html`<tr key=${c.nom}>
+          <td><b>${c.nom}</b><div className="meta num">${fmtLong(c.date)} · ${c.lieu}</div></td>
+          ${c.st.map((s, k) => html`<td key=${k}><span className="spill"><span className=${'st ' + PST[s][1]}></span>${PST[s][0]}</span></td>`)}
+          <td>${n ? html`<span className="obst done">${n} photographe${n > 1 ? 's' : ''}</span>` : html`<span className="obst late">Personne</span>`}</td>
+        </tr>`; })}</tbody>
+    </table></div>
+    <span className="meta">Données fictives. Dans la vraie version, le serveur de Communication lit les compétitions et les disponibilités dans MyFLA avec un accès en lecture seule, et n'affiche que le nom des photographes.</span>
+  <//>`;
+}
+
+/* ---------- Galerie photos (Piwigo, via l'API) ---------- */
+const ALBUMS = [
+  { id: 'a1', titre: 'Championnats nationaux 2026', date: '2026-07-11', n: 24, hue: 205, credits: ['Paul', 'Sarah'] },
+  { id: 'a2', titre: 'Meeting de printemps', date: '2026-05-10', n: 12, hue: 150, credits: ['Marc'] },
+  { id: 'a3', titre: 'Relais des clubs', date: '2026-06-06', n: 16, hue: 25, credits: ['Paul'] },
+  { id: 'a4', titre: 'Nationaux 10 km', date: '2026-03-15', n: 18, hue: 330, credits: ['Inès', 'Paul'] },
+  { id: 'a5', titre: 'Nationaux en salle', date: '2026-02-28', n: 20, hue: 265, credits: ['Sarah'] },
+];
+const photoBg = (hue, k) => `linear-gradient(${(k * 47) % 360}deg, hsl(${hue + k * 9} 45% ${38 + (k % 4) * 6}%), hsl(${hue + 40} 35% ${22 + (k % 3) * 5}%))`;
+
+function GalleryView({ state, onAttach }) {
+  const [album, setAlbum] = useState(null);
+  const [sel, setSel] = useState([]);
+  const [target, setTarget] = useState('');
+  const upcoming = state.pubs.filter(p => p.date >= TODAY && p.statut !== 'done').sort((a, b) => a.date.localeCompare(b.date));
+  const a = album && ALBUMS.find(x => x.id === album);
+  const tog = id => setSel(s => (s.includes(id) ? s.filter(x => x !== id) : [...s, id]));
+  return html`<${React.Fragment}>
+    <div className="top"><h2>${a ? a.titre : 'Galerie photos'}</h2><span className="pill">Photos FLA · Piwigo</span></div>
+    ${!a ? html`<${React.Fragment}>
+      <div className="notice">Les albums de la galerie FLA s'affichent ici, sans changer de site. Les photographes continuent de déposer leurs photos depuis MyFLA. <span className="meta">Images fictives dans la maquette.</span></div>
+      <div className="albums">${ALBUMS.map(x => html`<button key=${x.id} className="album" onClick=${() => { setAlbum(x.id); setSel([]); }}>
+        <span className="cover" style=${{ background: photoBg(x.hue, 1) }}></span>
+        <span className="t">${x.titre}</span><span className="meta num">${fmtShort(x.date)} · ${x.n} photos · ${x.credits.join(', ')}</span>
+      </button>`)}</div>
+    <//>` : html`<${React.Fragment}>
+      <div className="row" style=${{ justifyContent: 'space-between' }}>
+        <button className="linkbtn" onClick=${() => setAlbum(null)}>← Tous les albums</button>
+        <div className="row">
+          <span className="meta num">${sel.length} sélectionnée(s)</span>
+          <select id="g-target" value=${target} onChange=${e => setTarget(e.target.value)} aria-label="Publication">
+            <option value="">Joindre à une publication…</option>
+            ${upcoming.map(p => html`<option key=${p.id} value=${p.id}>${fmtShort(p.date)} · ${p.titre}</option>`)}
+          </select>
+          <button className="btn primary" disabled=${!sel.length || !target} onClick=${() => { onAttach(target, sel.map(k => ({ album: a.titre, k, hue: a.hue, credit: a.credits[k % a.credits.length] }))); setSel([]); }}>Joindre</button>
+        </div>
+      </div>
+      <div className="photos">${Array.from({ length: a.n }, (_, k) => html`<button key=${k} className=${'photo' + (sel.includes(k) ? ' on' : '')} style=${{ background: photoBg(a.hue, k) }} onClick=${() => tog(k)} aria-pressed=${sel.includes(k)}>
+        <span className="credit">© ${a.credits[k % a.credits.length]} / FLA</span>${sel.includes(k) && html`<span className="tick">✓</span>`}</button>`)}</div>
+      <span className="meta">Dans la vraie version : aperçu en grand, téléchargement en haute définition, et crédit photographe repris automatiquement depuis Piwigo.</span>
+    <//>`}
+  <//>`;
+}
+
+/* ---------- Statistiques (aperçu V2) ---------- */
+function StatsView() {
+  const nets = [
+    { n: 'Facebook', src: 'Synchronisation automatique (API Meta)', rows: [['Abonnés', '4 820'], ['Portée sur 30 jours', '38 400'], ['Interactions', '2 150'], ['Meilleure publication', 'Podiums – nationaux']] },
+    { n: 'Instagram', src: 'Synchronisation automatique (API Meta)', rows: [['Abonnés', '6 310'], ['Portée sur 30 jours', '52 900'], ['Interactions', '4 870'], ['Meilleure publication', "Tips de l'athlétisme"]] },
+    { n: 'LinkedIn', src: 'Import du fichier CSV exporté de la page', rows: [['Abonnés', '1 240'], ['Impressions sur 30 jours', '9 600'], ['Interactions', '410'], ['Meilleure publication', 'Sélection officielle']] },
+  ];
+  return html`<${React.Fragment}>
+    <div className="top"><h2>Statistiques</h2><span className="pill">Aperçu V2 · chiffres fictifs</span></div>
+    <p className="notice">En version 2, les chiffres de chaque publication remonteraient dans le calendrier, et cette page donnerait la vue d'ensemble par réseau.</p>
+    <div className="kpis">${nets.map(k => html`<div key=${k.n} className="kpi"><h4>${k.n}</h4>
+      <dl>${k.rows.map(([a, b]) => html`<${React.Fragment} key=${a}><dt>${a}</dt><dd className="num">${b}</dd><//>`)}</dl>
+      <span className="meta">${k.src}</span></div>`)}</div>
+  <//>`;
+}
+
+/* ---------- Déplacement d'une récurrence ---------- */
+function MoveDialog({ move, state, onOnly, onSeries, onClose }) {
+  const item = findItem(state, move.id);
+  if (!item) return null;
+  const r = state.rubriques.find(x => x.id === item.rubriqueId);
+  const nextRule = movedRule(ruleAt(r, item.origDate), parse(item.origDate), parse(move.to));
+  return html`<div className="modal">
+    <div className="backdrop" onClick=${onClose}></div>
+    <div className="dialog" role="dialog" aria-label="Déplacer une rubrique récurrente">
+      <h3>Déplacer une rubrique récurrente</h3>
+      <p style=${{ margin: 0 }}><b>${item.titre}</b> passe du <b>${fmtLong(item.date)}</b> au <b>${fmtLong(move.to)}</b>.</p>
+      <div className="field">
+        <button className="btn" style=${{ justifyContent: 'flex-start', textAlign: 'left' }} onClick=${onOnly}>
+          <span><b>Seulement cette date</b><br/><span className="meta">Les autres semaines restent ${ruleLabel(ruleAt(r, item.origDate)).toLowerCase()}.</span></span></button>
+        <button className="btn" style=${{ justifyContent: 'flex-start', textAlign: 'left' }} onClick=${onSeries}>
+          <span><b>Toute la récurrence, à partir de cette date</b><br/><span className="meta">Nouveau rythme : ${ruleLabel(nextRule).toLowerCase()}. Les dates passées ne bougent pas.</span></span></button>
+      </div>
+      <div className="row" style=${{ justifyContent: 'flex-end' }}><button className="btn ghost" onClick=${onClose}>Annuler</button></div>
+    </div>
+  </div>`;
+}
+
+/* ---------- Partenaires ---------- */
+const PLogo = ({ p }) => html`<span className="plogo" style=${{ background: `hsl(${p.hue} 50% 40%)` }}>${p.nom.split(' ').map(w => w[0]).join('').slice(0, 2)}</span>`;
+const ObStatus = ({ s }) => html`<span className=${'obst ' + s}>${OBST[s]}</span>`;
+const progText = (ob, g) => ob.mode === 'livrable' ? (g.fait ? 'Livré' : ETAPES[ob.etape]) : `${g.fait} / ${g.cible}`;
+
+function PartnersView({ state, onOpenPartner }) {
+  const rows = state.partners.flatMap(p => p.obligations.map(o => ({ p, o, g: progress(state, p, o) })));
+  const late = rows.filter(r => r.g.statut === 'late');
+  const risk = rows.filter(r => r.g.statut === 'risk');
+  const renew = state.partners.filter(p => { const d = daysBetween(TODAY, p.contrat.fin); return d >= 0 && d <= 60; });
+  const limit = ymd(addDays(parse(TODAY), 45));
+  const upcoming = [
+    ...state.partners.flatMap(p => p.obligations.filter(o => o.mode === 'evenements').flatMap(o => o.items.filter(i => !i.fait && i.date >= TODAY && i.date <= limit).map(i => ({ p, o, date: i.date, txt: `${o.libelle} – ${i.label}` })))),
+    ...state.partners.flatMap(p => p.obligations.filter(o => o.mode === 'livrable' && o.etape < 3 && o.echeance >= TODAY && o.echeance <= limit).map(o => ({ p, o, date: o.echeance, txt: `${o.libelle} (${ETAPES[o.etape].toLowerCase()})` }))),
+  ].sort((a, b) => a.date.localeCompare(b.date));
+  return html`<${React.Fragment}>
+    <div className="top"><h2>Partenaires</h2><span className="pill">Visible par les responsables com</span></div>
+    <div className="tiles">
+      <div className="tile late"><b className="num">${late.length}</b><span>contreparties en retard</span></div>
+      <div className="tile risk"><b className="num">${risk.length}</b><span>contreparties à risque</span></div>
+      <div className="tile"><b className="num">${renew.length}</b><span>contrat à renouveler (moins de 60 j)</span></div>
+      <div className="tile"><b className="num">${state.partners.length}</b><span>partenaires suivis</span></div>
+    </div>
+    <h3 className="section-title">À traiter en priorité</h3>
+    <div className="todo-list">
+      ${[...late, ...risk].map(({ p, o, g }) => html`<button key=${p.id + o.id} onClick=${() => onOpenPartner(p.id, o.id)}>
+        <span><b>${o.libelle}</b><br/><span className="meta">${p.nom} · ${progText(o, g)}${g.attendu !== null && o.mode !== 'livrable' ? ` · attendu à ce jour : ${g.attendu}` : ''}${g.prevus ? ` · ${g.prevus} prévu(s)` : ''}</span></span>
+        <${ObStatus} s=${g.statut} /></button>`)}
+      ${!late.length && !risk.length && html`<div className="empty">Toutes les contreparties sont dans les temps.</div>`}
+    </div>
+    ${upcoming.length > 0 && html`<${React.Fragment}><h3 className="section-title">Prochaines échéances · 45 jours</h3>
+      <div className="todo-list">${upcoming.map((u, k) => html`<button key=${k} onClick=${() => onOpenPartner(u.p.id, u.o.id)}>
+        <span><b>${u.txt}</b><br/><span className="meta">${u.p.nom}</span></span><span className="meta num">${fmtShort(u.date)}</span></button>`)}</div><//>`}
+    <h3 className="section-title">Tous les partenaires</h3>
+    <div className="pcards">${state.partners.map(p => { const pct = partnerPct(state, p); const gs = p.obligations.map(o => progress(state, p, o).statut);
+      const left = daysBetween(TODAY, p.contrat.fin);
+      return html`<button key=${p.id} className="pcard" onClick=${() => onOpenPartner(p.id)}>
+        <span className="row"><${PLogo} p=${p} /><span><h4>${p.nom}</h4><span className="meta">${p.niveau}</span></span></span>
+        <span className="meta num">Contrat du ${fmtShort(p.contrat.debut)} ${p.contrat.debut.slice(0, 4)} au ${fmtShort(p.contrat.fin)} ${p.contrat.fin.slice(0, 4)}</span>
+        <span className="field"><span className="meta num">${Math.round(pct * 100)} % des contreparties réalisées</span><span className="bar"><i style=${{ width: `${pct * 100}%` }}></i></span></span>
+        <span className="row">${['late', 'risk', 'ontrack', 'done'].filter(s => gs.includes(s)).map(s => html`<span key=${s} className=${'obst ' + s}>${gs.filter(x => x === s).length} ${OBST[s].toLowerCase()}</span>`)}</span>
+        ${left >= 0 && left <= 60 && html`<span className="alert">Contrat à renouveler : fin dans ${left} jours.</span>`}
+      </button>`; })}</div>
+  <//>`;
+}
+
+function ObCard({ state, partner, ob, open, onToggle, onUpdateOb, onOpenPub, onNewPub }) {
+  const g = progress(state, partner, ob);
+  const pct = Math.min(1, g.fait / g.cible);
+  const mark = g.attendu !== null && ob.mode !== 'livrable' ? Math.min(1, g.attendu / g.cible) : null;
+  const up = patch => onUpdateOb(partner.id, ob.id, patch);
+  const r = ob.rubriqueId && state.rubriques.find(x => x.id === ob.rubriqueId);
+  return html`<div className="ob">
+    <button className="obhead" onClick=${onToggle} aria-expanded=${open}>
+      <span><span className="t">${ob.libelle}</span><br/><span className="meta">${MODES[ob.mode]}</span></span>
+      <span className="obprog"><span className="num">${progText(ob, g)}${mark !== null ? ` · attendu ${g.attendu}` : ''}</span>
+        <span className="bar"><i style=${{ width: `${pct * 100}%` }}></i>${mark !== null && html`<em style=${{ left: `${mark * 100}%` }} title="Attendu à ce jour"></em>`}</span></span>
+      <${ObStatus} s=${g.statut} />
+    </button>
+    ${open && html`<div className="obbody">
+      ${ob.mode === 'publications' && html`<${React.Fragment}>
+        <ul className="tl">${g.liste.map((x, k) => html`<li key=${k}><span className="meta num">${fmtShort(x.date)}</span>
+          ${x.hist ? html`<span title="Saisie avant la plateforme">${x.titre}</span>` : html`<button onClick=${() => onOpenPub(x.id)}>${x.titre}</button>`}
+          ${x.hist ? html`<span className="st done" title="Publié"></span>` : html`<${StatusPill} s=${x.statut} />`}</li>`)}</ul>
+        <span className="meta">Comptent les publications liées au partenaire et passées au statut Publié pendant le contrat.</span>
+        <button className="btn" style=${{ width: 'fit-content' }} onClick=${() => onNewPub({ date: TODAY, partnerIds: [partner.id] })}>+ Publication pour ce partenaire</button>
+      <//>`}
+      ${ob.mode === 'rubrique' && r && html`<span>Compté automatiquement : chaque occurrence publiée de <b>${r.titre}</b> (${ruleLabel(r.rule).toLowerCase()}) pendant le contrat. ${g.prevus} à venir d'ici la fin du contrat.</span>`}
+      ${ob.mode === 'evenements' && html`<${React.Fragment}>
+        ${ob.items.map(i => html`<label key=${i.id} className="evrow">
+          <input type="checkbox" id=${'ev-' + partner.id + ob.id + i.id} checked=${i.fait} onChange=${e => up({ items: ob.items.map(x => x.id === i.id ? { ...x, fait: e.target.checked, preuve: e.target.checked ? (x.preuve || 'Photo à joindre') : '' } : x) })} />
+          <span className="meta num">${fmtShort(i.date)}</span><span>${i.label}</span>
+          ${i.fait ? html`<span className="meta">${i.preuve}</span>` : i.date < TODAY ? html`<span className="miss">Manqué</span>` : html`<span className="meta">À venir</span>`}
+        </label>`)}
+        ${g.cible > ob.items.length && html`<span className="meta">${g.cible - ob.items.length} événement(s) encore à choisir avec le partenaire.</span>`}
+      <//>`}
+      ${ob.mode === 'livrable' && html`<${React.Fragment}>
+        <span className="meta">Échéance : ${fmtLong(ob.echeance)}</span>
+        <div className="steps">${ETAPES.map((s, k) => html`<button key=${k} className=${k <= ob.etape ? 'on' : ''} onClick=${() => up({ etape: k })}>${s}</button>`)}</div>
+      <//>`}
+      ${ob.mode === 'quantite' && html`<div className="qty">
+        <button className="btn icon" onClick=${() => up({ fait: Math.max(0, ob.fait - 1) })} aria-label="Retirer">−</button>
+        <b className="num">${ob.fait} / ${ob.cible}</b>
+        <button className="btn icon" onClick=${() => up({ fait: ob.fait + 1 })} aria-label="Ajouter">+</button></div>`}
+    </div>`}
+  </div>`;
+}
+
+function PartnerDetail({ state, partner, focusOb, onBack, onUpdateOb, onOpenPub, onNewPub, onBilan }) {
+  const [open, setOpen] = useState(() => new Set(focusOb ? [focusOb] : []));
+  const left = daysBetween(TODAY, partner.contrat.fin);
+  const frac = Math.min(1, Math.max(0, daysBetween(partner.contrat.debut, TODAY) / daysBetween(partner.contrat.debut, partner.contrat.fin)));
+  const tog = id => setOpen(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  return html`<${React.Fragment}>
+    <button className="linkbtn" onClick=${onBack}>← Tous les partenaires</button>
+    <div className="top">
+      <div className="row"><${PLogo} p=${partner} /><h2 style=${{ textTransform: 'none' }}>${partner.nom}</h2><span className="pill">${partner.niveau}</span></div>
+      <button className="btn primary" onClick=${onBilan}>Bilan partenaire</button>
+    </div>
+    <div className="meta num" style=${{ fontSize: '14px' }}>
+      <span>Contrat du ${fmtLong(partner.contrat.debut)} ${partner.contrat.debut.slice(0, 4)} au ${fmtLong(partner.contrat.fin)} ${partner.contrat.fin.slice(0, 4)}</span><span>·</span>
+      <span>${Math.round(frac * 100)} % de la période écoulée</span>${partner.handle && html`<span>·</span><span>${partner.handle}</span>`}<span>·</span><span>Contrat signé : lien à configurer</span>
+    </div>
+    ${left >= 0 && left <= 60 && html`<div className="alert"><b>Contrat à renouveler :</b> il se termine dans ${left} jours. Le bilan partenaire aide à préparer le rendez-vous.</div>`}
+    ${Object.entries(CATS).map(([c, label]) => { const obs = partner.obligations.filter(o => o.cat === c); if (!obs.length) return null;
+      return html`<div key=${c} className="obs"><h3 className="catttl">${label}</h3>
+        ${obs.map(o => html`<${ObCard} key=${o.id} state=${state} partner=${partner} ob=${o} open=${open.has(o.id)} onToggle=${() => tog(o.id)}
+          onUpdateOb=${onUpdateOb} onOpenPub=${onOpenPub} onNewPub=${onNewPub} />`)}</div>`; })}
+  <//>`;
+}
+
+function BilanModal({ state, partner, onClose }) {
+  return html`<div className="modal">
+    <div className="backdrop" onClick=${onClose}></div>
+    <div className="dialog bilan" role="dialog" aria-label="Bilan partenaire" style=${{ width: 'min(680px,100%)' }}>
+      <h3>Bilan · ${partner.nom}</h3>
+      <span className="meta num">Contrat du ${fmtShort(partner.contrat.debut)} ${partner.contrat.debut.slice(0, 4)} au ${fmtShort(partner.contrat.fin)} ${partner.contrat.fin.slice(0, 4)} · état au ${fmtLong(TODAY)} 2026</span>
+      <div className="tablewrap"><table>
+        <thead><tr><th>Contrepartie</th><th>Réalisé</th><th>Statut</th></tr></thead>
+        <tbody>${partner.obligations.map(o => { const g = progress(state, partner, o);
+          const det = o.mode === 'publications' ? g.liste.filter(x => x.hist || x.statut === 'done').map(x => `${fmtShort(x.date)} : ${x.titre}`)
+            : o.mode === 'evenements' ? o.items.filter(i => i.fait).map(i => `${fmtShort(i.date)} : ${i.label} (${i.preuve})`) : [];
+          return html`<tr key=${o.id}><td><b>${o.libelle}</b>${det.length > 0 && html`<div className="meta">${det.join(' · ')}</div>`}</td>
+            <td className="num">${progText(o, g)}</td><td><${ObStatus} s=${g.statut} /></td></tr>`; })}</tbody>
+      </table></div>
+      <span className="meta">Dans la version finale : export PDF avec les photos de preuve et les statistiques de chaque publication (portée, interactions).</span>
+      <div className="row" style=${{ justifyContent: 'flex-end' }}><button className="btn" onClick=${onClose}>Fermer</button></div>
+    </div>
+  </div>`;
+}
+
+/* ---------- Application ---------- */
+let seq = 100;
+function App() {
+  const [state, setState] = useState(loadState);
+  useEffect(() => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }, [state]);
+  const [userId, setUserId] = useState('margot');
+  const user = person(userId);
+  const [view, setView] = useState('calendrier');
+  const [month, setMonth] = useState({ y: 2026, m: 9 });
+  const [mode, setMode] = useState(() => (window.innerWidth < 760 ? 'agenda' : 'mois'));
+  const [filters, setFilters] = useState({ type: '', canal: '', personne: '', partenaire: '', recurrents: true });
+  const [openId, setOpenId] = useState(null);
+  const [modal, setModal] = useState(null);
+  const [partnerOpen, setPartnerOpen] = useState(null);
+  const [moveReq, setMoveReq] = useState(null);
+  const [toast, setToast] = useState(null);
+  const say = m => { setToast(m); clearTimeout(say.t); say.t = setTimeout(() => setToast(null), 2200); };
+
+  const ext = user.role === 'externe';
+  const item = findItem(state, openId);
+  useEffect(() => { if (openId && !item) setOpenId(null); }, [openId, item]);
+
+  const updateItem = (id, patch) => setState(s => id.startsWith('r:')
+    ? { ...s, overrides: { ...s.overrides, [id]: { ...(s.overrides[id] || {}), ...patch } } }
+    : { ...s, pubs: s.pubs.map(p => p.id === id ? { ...p, ...patch } : p) });
+  const actions = {
+    cancelOcc: id => { updateItem(id, { annule: true }); setOpenId(null); say('Date retirée du calendrier'); },
+    deletePub: id => { setState(s => ({ ...s, pubs: s.pubs.filter(p => p.id !== id) })); setOpenId(null); say('Publication supprimée'); },
+    addPub: p => { setState(s => ({ ...s, pubs: [...s.pubs, { ...p, id: 'p' + (++seq) + Date.now() }] })); setModal(null); say('Publication ajoutée au calendrier'); },
+    addTask: t => { setState(s => ({ ...s, tasks: [...s.tasks, { ...t, id: 't' + (++seq) + Date.now() }] })); setModal(null); say('Tâche créée'); },
+    addEvent: e => { setState(s => ({ ...s, events: [...s.events, { ...e, id: 'e' + (++seq) + Date.now() }] })); setModal(null); say('Événement créé'); },
+    updateTask: (id, patch) => setState(s => ({ ...s, tasks: s.tasks.map(t => t.id === id ? { ...t, ...patch } : t) })),
+    toggleRub: id => setState(s => ({ ...s, rubriques: s.rubriques.map(r => r.id === id ? { ...r, active: !r.active } : r) })),
+    reset: () => { setState(clone(SEED)); setOpenId(null); setPartnerOpen(null); say('Données d’exemple restaurées'); },
+    // Glisser-déposer ou changement de date : une récurrence demande « cette date » ou « toute la série ».
+    move: (id, to) => {
+      const it = findItem(state, id);
+      if (!it || it.date === to) return;
+      if (it.virtual) { setMoveReq({ id, to }); return; }
+      updateItem(id, { date: to }); say(`Publication déplacée au ${fmtLong(to)}`);
+    },
+    moveOnly: () => {
+      const it = findItem(state, moveReq.id);
+      updateItem(moveReq.id, { movedTo: moveReq.to === it.origDate ? undefined : moveReq.to });
+      setMoveReq(null); say(`Déplacée au ${fmtLong(moveReq.to)}, cette date seulement`);
+    },
+    moveSeries: () => {
+      const it = findItem(state, moveReq.id);
+      setState(s => {
+        const overrides = { ...s.overrides };
+        if (overrides[moveReq.id]) { const { movedTo, ...rest } = overrides[moveReq.id]; overrides[moveReq.id] = rest; }
+        return { ...s, overrides, rubriques: s.rubriques.map(r => {
+          if (r.id !== it.rubriqueId) return r;
+          // La nouvelle règle s'applique dès la plus proche des deux dates (avancer d'un jour doit aussi marcher).
+          const cut = it.origDate < moveReq.to ? it.origDate : moveReq.to;
+          const history = (r.history || []).filter(h => h.until <= cut);
+          return { ...r, history: [...history, { until: cut, rule: r.rule }], rule: movedRule(r.rule, parse(it.origDate), parse(moveReq.to)) };
+        }) };
+      });
+      setMoveReq(null); say('Récurrence déplacée à partir de cette date');
+    },
+    attachPhotos: (pid, photos) => {
+      setState(s => ({ ...s, pubs: s.pubs.map(p => p.id === pid ? { ...p, photos: [...(p.photos || []), ...photos] } : p) }));
+      say(`${photos.length} photo(s) jointe(s) à la publication`);
+    },
+    updateOb: (pid, oid, patch) => setState(s => ({ ...s, partners: s.partners.map(p => p.id !== pid ? p : { ...p, obligations: p.obligations.map(o => o.id === oid ? { ...o, ...patch } : o) }) })),
+  };
+  const openTasks = state.tasks.filter(t => t.assigne === user.id && t.statut !== 'done').length;
+  const lateObs = state.partners.reduce((n, p) => n + p.obligations.filter(o => progress(state, p, o).statut === 'late').length, 0);
+  const NAV = ext
+    ? [['calendrier', 'Calendrier'], ['taches', 'Mes tâches', openTasks]]
+    : [['calendrier', 'Calendrier'], ['taches', 'Tâches', openTasks], ['evenements', 'Événements'], ['galerie', 'Galerie photos'], ['photos', 'Présence photographes'], ['rubriques', 'Rubriques récurrentes'],
+       ...(user.role === 'admin' ? [['partenaires', 'Partenaires', lateObs]] : []), ['stats', 'Statistiques', 'V2']];
+  const switchUser = id => {
+    setUserId(id); setOpenId(null);
+    const role = person(id).role;
+    if ((role === 'externe' && !['calendrier', 'taches'].includes(view)) || (role !== 'admin' && view === 'partenaires')) setView('calendrier');
+  };
+  const curPartner = partnerOpen && state.partners.find(p => p.id === partnerOpen.id);
+
+  return html`<div className="app">
+    <aside className="side">
+      <div className="brand">
+        <h1>Communication <span>FLA</span></h1>
+        <div className="lanes" aria-hidden="true"></div>
+        <span className="pill">Maquette · données fictives</span>
+      </div>
+      <nav className="nav">${NAV.map(([k, l, c]) => html`<button key=${k} className=${view === k ? 'on' : ''} onClick=${() => { setView(k); if (k === 'partenaires') setPartnerOpen(null); }}>
+        <span>${l}</span>${c === 'V2' ? html`<span className="v2">V2</span>` : c ? html`<span className="count num">${c}</span>` : null}</button>`)}</nav>
+      <div className="field">
+        <label className="label" htmlFor="as-user">Voir en tant que</label>
+        <select id="as-user" value=${userId} onChange=${e => switchUser(e.target.value)}>
+          ${PEOPLE.map(p => html`<option key=${p.id} value=${p.id}>${p.nom} · ${ROLE[p.role]}</option>`)}
+        </select>
+        <span className="meta">${user.titre}</span>
+      </div>
+      ${!ext && html`<div className="field links-block"><span className="label">Liens utiles</span>
+        <ul className="links">${LIENS.map(l => html`<li key=${l}><span>${l}</span><span title="Lien à configurer">↗</span></li>`)}</ul></div>`}
+      <div className="side-foot">
+        <span>Vos modifications restent dans ce navigateur, pour tester.</span>
+        <button className="linkbtn" onClick=${actions.reset}>Restaurer les données d'exemple</button>
+      </div>
+    </aside>
+    <main className="main">
+      ${view === 'calendrier' && html`<${CalendarView} state=${state} user=${user} month=${month} setMonth=${setMonth} mode=${mode} setMode=${setMode}
+        filters=${filters} setFilters=${setFilters} onOpen=${setOpenId} onNew=${preset => setModal({ kind: 'pub', preset })} onMove=${actions.move} />`}
+      ${view === 'taches' && html`<${TasksView} state=${state} user=${user} onUpdateTask=${actions.updateTask} onOpen=${setOpenId} onNewTask=${preset => setModal({ kind: 'task', preset })} />`}
+      ${view === 'evenements' && html`<${EventsView} state=${state} user=${user} onOpen=${setOpenId} onNewPub=${preset => setModal({ kind: 'pub', preset })} onNewEvent=${() => setModal({ kind: 'event' })} />`}
+      ${view === 'rubriques' && html`<${RubriquesView} state=${state} user=${user} onToggle=${actions.toggleRub} />`}
+      ${view === 'partenaires' && user.role === 'admin' && (curPartner
+        ? html`<${PartnerDetail} key=${curPartner.id + (partnerOpen.ob || '')} state=${state} partner=${curPartner} focusOb=${partnerOpen.ob} onBack=${() => setPartnerOpen(null)}
+            onUpdateOb=${actions.updateOb} onOpenPub=${setOpenId} onNewPub=${preset => setModal({ kind: 'pub', preset })} onBilan=${() => setModal({ kind: 'bilan', id: curPartner.id })} />`
+        : html`<${PartnersView} state=${state} onOpenPartner=${(id, ob) => setPartnerOpen({ id, ob })} />`)}
+      ${view === 'photos' && !ext && html`<${PresenceView} />`}
+      ${view === 'galerie' && !ext && html`<${GalleryView} state=${state} onAttach=${actions.attachPhotos} />`}
+      ${view === 'stats' && html`<${StatsView} />`}
+    </main>
+    ${item && html`<${Drawer} item=${item} state=${state} user=${user} onClose=${() => setOpenId(null)}
+      onUpdate=${updateItem} onCancelOcc=${actions.cancelOcc} onDelete=${actions.deletePub} onMove=${actions.move} />`}
+    ${moveReq && html`<${MoveDialog} move=${moveReq} state=${state} onOnly=${actions.moveOnly} onSeries=${actions.moveSeries} onClose=${() => setMoveReq(null)} />`}
+    ${modal?.kind === 'bilan' && html`<${BilanModal} state=${state} partner=${state.partners.find(p => p.id === modal.id)} onClose=${() => setModal(null)} />`}
+    ${modal?.kind === 'pub' && html`<${NewPub} preset=${modal.preset} state=${state} onClose=${() => setModal(null)} onCreate=${actions.addPub} />`}
+    ${modal?.kind === 'task' && html`<${NewTask} preset=${modal.preset} state=${state} user=${user} onClose=${() => setModal(null)} onCreate=${actions.addTask} />`}
+    ${modal?.kind === 'event' && html`<${NewEvent} onClose=${() => setModal(null)} onCreate=${actions.addEvent} />`}
+    ${toast && html`<div className="toast" role="status">${toast}</div>`}
+  </div>`;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(html`<${App} />`);
+</script>

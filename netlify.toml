@@ -1,0 +1,7 @@
+# Site Netlify : communication.fla.lu (Next.js détecté automatiquement par Netlify).
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"

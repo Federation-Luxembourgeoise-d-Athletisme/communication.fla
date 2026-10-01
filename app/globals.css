@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+/* Palette reprise de la maquette : neutres légèrement bleutés, bleu Luxembourg, rouge piste. */
+:root {
+  --bg: #f3f6f9;
+  --surface: #ffffff;
+  --surface-2: #eaeff4;
+  --ink: #14202d;
+  --muted: #596a7b;
+  --line: #d6dee7;
+  --accent: #0a76b5;
+  --accent-ink: #ffffff;
+  --accent-soft: #dcedf7;
+  --red: #c42e3a;
+  --ok: #21804e;
+  --warn: #b9740c;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d141c;
+    --surface: #141e29;
+    --surface-2: #1b2734;
+    --ink: #e4ecf3;
+    --muted: #93a3b4;
+    --line: #283646;
+    --accent: #43a8e3;
+    --accent-ink: #06121b;
+    --accent-soft: #163246;
+    --red: #ee6971;
+    --ok: #55c08a;
+    --warn: #e2a44c;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-red: var(--red);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --font-sans: var(--font-barlow), system-ui, sans-serif;
+  --font-display: var(--font-barlow-condensed), "Arial Narrow", sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.lanes {
+  height: 6px;
+  background: repeating-linear-gradient(90deg, var(--red) 0 18px, transparent 18px 22px);
+  opacity: 0.85;
+}
+
+.field-input {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
